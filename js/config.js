@@ -46,8 +46,7 @@ export const FRIEND = {
   peer: { debug: 0, config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:global.stun.twilio.com:3478" }] } },
 };
 
-/* Problem reports: kept on the phone (Me → Report a problem copies them) and, unless switched off, sent to the developer's
-   ntfy topic. Nothing personal is sent: the error, the screen, the device and browser, the app version. */
+/* Problem reports: kept on the phone and always sent to the developer's ntfy topic (no switch: his word 17 Nov 00:14). Nothing personal is sent: the error, the screen, the device and browser, the app version. */
 export const LOG = {
   key: "ilc-log",
   keep: 200,                        // newest entries kept on the phone
@@ -63,5 +62,5 @@ export const THEMES = [
   { id: "pounamu", name: "Pounamu" }, { id: "toroa", name: "Iwi Toroa" },
   { id: "totara", name: "Whakairo Tōtara" }, { id: "ahika", name: "Te Ahi Kā" },
 ];
-export const DEFAULTS = { theme: "pounamu", sound: true, sendReports: true, name: "", showCoords: true };
+export const DEFAULTS = { theme: "pounamu", sound: true, name: "", showCoords: true };
 export const ANIM_MS = 160;

@@ -4,7 +4,6 @@ import * as log from "./log.js";
 import { settings } from "./store.js";
 
 log.install();
-log.setSending(() => settings.sendReports);
 
 const SCREENS = { home: "home", play: "play", computer: "computer", ladder: "ladder", friend: "friend", game: "game", me: "me" };
 const TAB_OF = { home: "home", play: "play", computer: "play", ladder: "play", game: "play", friend: "friend", me: "me" };

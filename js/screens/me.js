@@ -1,8 +1,7 @@
 /* Me: your games, the look, sound, problem reports and what the app is built from. */
 import { APP, THEMES } from "../config.js";
 import { settings, saveSettings, games, ladder } from "../store.js";
-import * as log from "../log.js";
-import { applyTheme, toast } from "../app.js";
+import { applyTheme } from "../app.js";
 import { esc } from "./ui.js";
 import { OPPONENTS } from "../config.js";
 
@@ -20,17 +19,9 @@ export function render(v) {
       <span class="sw"><i style="background:var(--sq-light)"></i><i style="background:var(--sq-dark)"></i></span><span>${esc(t.name)}</span></label>`).join("")}</div>
     <h2 class="overline">Settings</h2>
     <label class="switch"><span>Sounds</span><input type="checkbox" id="snd"${settings.sound ? " checked" : ""}></label>
-    <label class="switch"><span>Send problem reports to the developer</span><input type="checkbox" id="rep"${settings.sendReports ? " checked" : ""}></label>
-    <p class="ilc-card__line">A report holds what went wrong, the screen, your phone's model and browser, and the app's version. Nothing else.</p>
-    <h2 class="overline">Report a problem</h2>
-    <p class="sub">${log.count() ? `${log.count()} problem${log.count() === 1 ? "" : "s"} noted on this phone.` : "Nothing has gone wrong on this phone."} Copy the report and send it in a message.</p>
-    <div class="row"><button class="ilc-btn ilc-btn--primary" id="copyrep">Copy the report</button><button class="ilc-btn" id="clr">Clear</button></div>
     <h2 class="overline">About</h2>
-    <p class="ilc-card__line">${APP.name} ${APP.version}. The sets are modern Māori art, his own designs. Chess engine: Stockfish 19 (GPL-3.0, <a href="https://github.com/official-stockfish/Stockfish">source</a>; in the browser by Stockfish.js). Rules: chess.js. Connections: PeerJS.</p>
+    <p class="ilc-card__line">${APP.name} ${APP.version}. The sets are modern Māori art, his own designs. If something goes wrong, a short problem report (what happened, the phone's model and browser, the app's version) goes to the developer so it can be fixed. Chess engine: Stockfish 19 (GPL-3.0, <a href="https://github.com/official-stockfish/Stockfish">source</a>; in the browser by Stockfish.js). Rules: chess.js. Connections: PeerJS.</p>
   </section>`;
   v.querySelector(".themes").onchange = (e) => { settings.theme = e.target.value; saveSettings(); applyTheme(); };
   v.querySelector("#snd").onchange = (e) => { settings.sound = e.target.checked; saveSettings(); };
-  v.querySelector("#rep").onchange = (e) => { settings.sendReports = e.target.checked; saveSettings(); };
-  v.querySelector("#copyrep").onclick = async () => { try { await navigator.clipboard.writeText(log.report()); toast("Report copied — paste it in a message"); } catch { toast("Copying was refused on this phone"); } };
-  v.querySelector("#clr").onclick = () => { log.clear(); render(v); };
 }
