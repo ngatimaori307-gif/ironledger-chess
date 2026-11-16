@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" data-theme="pounamu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10110D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Iron Ledger">
+<title>Iron Ledger Chess</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Cinzel:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<main id="view"><section class="pg"><p class="sub">Setting up the board…</p></section></main>
+<nav class="ilc-tabbar" aria-label="Main">
+  <a class="ilc-tab" data-tab="home" href="#home"><span class="ilc-tab__icon" aria-hidden="true">⌂</span>Home</a>
+  <a class="ilc-tab" data-tab="play" href="#play"><span class="ilc-tab__icon" aria-hidden="true">⚔</span>Play</a>
+  <a class="ilc-tab" data-tab="friend" href="#friend"><span class="ilc-tab__icon" aria-hidden="true">♞</span>Friend</a>
+  <a class="ilc-tab" data-tab="me" href="#me"><span class="ilc-tab__icon" aria-hidden="true">♔</span>Me</a>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="vendor/pieces-wood.js"></script>
+<script src="vendor/peerjs.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+/* Iron Ledger Chess — generated from tokens.json */
+:root, [data-theme="pounamu"] {
+  --ground: #10110D;
+  --surface: #1B2119;
+  --surface-sunk: #0A0B08;
+  --line: #2F311D;
+  --ink: #E2D5B8;
+  --ink-muted: #B8AB75;
+  --brand: #2A6D52;
+  --on-brand: #F3ECDD;
+  --gold: #C9B77A;
+  --engine: #3F7086;
+  --engine-edge: #F3ECDD;
+  --win: #83D1CD;
+  --loss: #A3562B;
+  --sq-light: #DCCFB2;
+  --sq-dark: #144632;
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.35), 0 6px 18px rgba(0,0,0,0.25);
+}
+[data-theme="toroa"] {
+  --ground: #E2D5B8;
+  --surface: #EFE6D2;
+  --surface-sunk: #D4C7AA;
+  --line: #B9AC8E;
+  --ink: #151314;
+  --ink-muted: #4B3E37;
+  --brand: #144632;
+  --on-brand: #F3ECDD;
+  --gold: #7A5B2E;
+  --engine: #3F7086;
+  --engine-edge: #F3ECDD;
+  --win: #358682;
+  --loss: #5C1A00;
+  --sq-light: #E2D5B8;
+  --sq-dark: #375D72;
+}
+[data-theme="totara"] {
+  --ground: #22150F;
+  --surface: #331E15;
+  --surface-sunk: #170D09;
+  --line: #562D1C;
+  --ink: #E8D5C6;
+  --ink-muted: #CB9560;
+  --brand: #994725;
+  --on-brand: #F3ECDD;
+  --gold: #C09048;
+  --engine: #1F3550;
+  --engine-edge: #F3ECDD;
+  --win: #85D4CF;
+  --loss: #A6582D;
+  --sq-light: #C09048;
+  --sq-dark: #63241A;
+}
+[data-theme="ahika"] {
+  --ground: #1B130E;
+  --surface: #2A1C13;
+  --surface-sunk: #120C08;
+  --line: #452F20;
+  --ink: #EBD3C2;
+  --ink-muted: #C9A27E;
+  --brand: #A65B24;
+  --on-brand: #FFF4E6;
+  --gold: #EBB349;
+  --engine: #1F3550;
+  --engine-edge: #F3ECDD;
+  --win: #83D1CD;
+  --loss: #A3562B;
+  --sq-light: #B7803F;
+  --sq-dark: #452F20;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --font-display: "Cinzel", "Trajan Pro", Georgia, serif;
+  --font-sans: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --font-figures: "Cinzel", Georgia, serif;
+}
+.title-xl { font-family: var(--font-display); font-size: 34px; line-height: 40px; font-weight: 600; letter-spacing: 0.04em; }
+.title { font-family: var(--font-display); font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: 0.03em; }
+.card-title { font-family: var(--font-display); font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: 0.02em; }
+.figure { font-family: var(--font-display); font-size: 28px; line-height: 32px; font-weight: 700; }
+.body { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; }
+.label { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 500; }
+.caption { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.overline { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.12em; }
