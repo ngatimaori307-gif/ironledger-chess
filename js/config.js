@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.0.0", build: "2026-11-17" };
+export const APP = { name: "Iron Ledger Chess", version: "1.0.1", build: "2026-11-17" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
