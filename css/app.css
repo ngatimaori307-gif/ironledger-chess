@@ -142,3 +142,15 @@ html[data-theme="pounamu"], html:not([data-theme]) { background: var(--stone), v
   background: radial-gradient(circle, rgba(0, 0, 0, .26) 0 56%, rgba(0, 0, 0, 0) 70%); }
 .bd-grid { touch-action: none; }
 @media (prefers-reduced-motion: reduce) { .bd-sq img { transition: none; } .bd-ghost { will-change: auto; } }
+/* Friends to invite; a friend's invite over any screen (js/presence.js); the rematch's colour */
+.friends { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.friends li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.invite-pop { position: fixed; left: 12px; right: 12px; top: calc(12px + env(safe-area-inset-top)); z-index: 950; max-width: 460px; margin: 0 auto;
+  animation: ilc-invite-in 260ms cubic-bezier(.22, 1, .36, 1); }
+.invite-pop .ilc-plate { box-shadow: 0 10px 30px rgba(0, 0, 0, .45); border: 1px solid var(--gold); }
+.invite-pop .row { display: flex; gap: var(--space-2); }
+@keyframes ilc-invite-in { from { transform: translateY(-120%); opacity: 0; } to { transform: none; opacity: 1; } }
+.gm-again-pick { display: grid; gap: var(--space-1); width: 100%; }
+@media (prefers-reduced-motion: reduce) { .invite-pop { animation: none; } }
+.invite-pop .ilc-plate { background: var(--surface-raised, var(--surface)); backdrop-filter: none; }
+.invite-pop { background: var(--surface-raised, var(--surface)); border-radius: var(--radius-lg, 16px); }
