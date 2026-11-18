@@ -73,5 +73,9 @@ export const THEMES = [
   { id: "pounamu", name: "Pounamu" }, { id: "toroa", name: "Iwi Toroa" },
   { id: "totara", name: "Whakairo Tōtara" }, { id: "ahika", name: "Te Ahi Kā" },
 ];
-export const DEFAULTS = { theme: "pounamu", sound: true, name: "", showCoords: true };
+export const DEFAULTS = { theme: "pounamu", sound: true, name: "", showCoords: true, motion: "full", captureFx: "topple" };
 export const ANIM_MS = 160;
+/* The board's motion, Iron Ledger's own numbers (app.js: KNIGHT_ARC_STEPS, LAND_AT, LAND_SQUASH, LAND_STRETCH; app/board2d.js) */
+export const MOTION = { moveMs: 160, ease: "cubic-bezier(.65,0,.35,1)", knightSteps: 8, landAt: 0.82, landSquash: 0.12, landStretch: 0.07,
+  dragScale: 1.25, dragLiftTouch: 0.35, dragStartPx: 6, captureFx: "topple" };
+export const CAPTURE_FX = [["topple", "Knocked over"], ["shatter", "Shatter"], ["dissolve", "Ash"], ["holo", "Hologram"], ["vortex", "Black hole"], ["random", "Surprise me"], ["off", "Off"]];
