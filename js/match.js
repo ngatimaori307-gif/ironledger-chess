@@ -6,6 +6,7 @@ import { ALL_OPPONENTS } from "./config.js";
 import * as maia from "./maia.js";
 import * as maia3 from "./maia3.js";
 import { addGame, setCurrent, beat } from "./store.js";
+import { kindOf } from "./rating.js";
 import { record } from "./log.js";
 
 export function newMatch({ mode, me, oppId = null, code = null, ladder = false, moves = [], startedAt = Date.now(), result = null, oppName = "" }) {
@@ -51,7 +52,9 @@ export function finish(m, result, why) {
   if (m.ladder && mine === "win") beat(m.oppId);
   const pgnHead = { White: m.me === "w" ? "You" : oppLabel(m), Black: m.me === "b" ? "You" : oppLabel(m), Result: result, Date: new Date(m.startedAt).toISOString().slice(0, 10).replace(/-/g, ".") };
   for (const [k, v] of Object.entries(pgnHead)) m.chess.setHeader(k, v);
-  addGame({ at: Date.now(), mode: m.mode, opp: oppLabel(m), me: m.me, result, why, mine, moves: m.moves.length, pgn: m.chess.pgn() });
+  const o = opponent(m);                                    // v1.4: the kind and rating kept for the Profile (friends: none)
+  addGame({ at: Date.now(), mode: m.mode, opp: oppLabel(m), me: m.me, result, why, mine, moves: m.moves.length, pgn: m.chess.pgn(),
+    ...(o ? { oppId: o.id, oppRating: o.rating, kind: kindOf(o) } : {}), ladder: !!m.ladder });
   persist(m); m.listeners.forEach((fn) => fn("end", { result, why, mine }));
 }
 

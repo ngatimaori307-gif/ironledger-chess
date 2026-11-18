@@ -1,19 +1,18 @@
-/* Me: your games, the look, sound, problem reports and what the app is built from. */
+/* Me: the way to his Profile (rating, record, games), the look, sound, problem reports and what the app is built from. */
 import { APP, THEMES, CAPTURE_FX } from "../config.js";
 import { settings, saveSettings, games, ladder } from "../store.js";
 import { applyTheme } from "../app.js";
 import { esc } from "./ui.js";
 import { OPPONENTS } from "../config.js";
+import { profile } from "../rating.js";
 
 export function render(v) {
   const g = games(), w = g.filter((x) => x.mine === "win").length, d = g.filter((x) => x.mine === "draw").length, l = g.filter((x) => x.mine === "loss").length;
-  const rung = ladder().beaten.length;
+  const rung = ladder().beaten.length, p = profile(g);
   v.innerHTML = `<section class="pg"><h1 class="ilc-title">Me</h1>
-    <div class="ilc-plate"><div><div class="ilc-plate__over">Your games</div><div class="ilc-plate__rank">${w} won · ${d} drawn · ${l} lost</div></div>
-      <div><div class="ilc-plate__over">The Ladder</div><div class="ilc-plate__fig">${rung}<small>/${OPPONENTS.length}</small></div></div></div>
-    <h2 class="overline">Recent games</h2>
-    ${g.length ? `<ul class="games">${g.slice(0, 20).map((x) => `<li><span class="res res--${x.mine}">${{ win: "✓ Won", loss: "✗ Lost", draw: "½ Draw" }[x.mine]}</span>
-      <span class="g-opp">${esc(x.opp)}</span><span class="ilc-card__line">${esc(x.why)} · ${Math.ceil(x.moves / 2)} moves · ${new Date(x.at).toLocaleDateString()}</span></li>`).join("")}</ul>` : `<p class="sub">No finished games yet.</p>`}
+    <a class="me-profile" href="#profile"><div class="ilc-plate"><div><div class="ilc-plate__over">${esc(settings.name || "Your profile")} ›</div><div class="ilc-plate__rank">${w} won · ${d} drawn · ${l} lost</div>
+      <div class="ilc-card__line">${p.rating == null ? "Rating, record and every game to replay" : `Rating ${p.rating}${p.provisional ? " (provisional)" : ""} · record and every game to replay`}</div></div>
+      <div><div class="ilc-plate__over">The Ladder</div><div class="ilc-plate__fig">${rung}<small>/${OPPONENTS.length}</small></div></div></div></a>
     <h2 class="overline">Look</h2>
     <div class="themes" role="radiogroup" aria-label="Look">${THEMES.map((t) => `<label class="theme" data-theme="${t.id}"><input type="radio" name="th" value="${t.id}"${t.id === settings.theme ? " checked" : ""}>
       <span class="sw"><i style="background:var(--sq-light)"></i><i style="background:var(--sq-dark)"></i></span><span>${esc(t.name)}</span></label>`).join("")}</div>

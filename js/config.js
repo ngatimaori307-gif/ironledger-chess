@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.3.0", build: "2026-11-18" };
+export const APP = { name: "Iron Ledger Chess", version: "1.4.0", build: "2026-11-18" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -75,7 +75,14 @@ export const LOG = {
 };
 
 export const STORE = { settings: "ilc-settings", ladder: "ilc-ladder", games: "ilc-games", current: "ilc-current", friend: "ilc-friend" };
-export const GAMES_KEPT = 50;
+export const GAMES_KEPT = 500;                       // v1.4: finished games kept on the phone (~1 KB each), for the Profile and its rating
+/* v1.4 — the Profile's rating: Glicko-2 as Iron Ledger's elo.py (Glickman 2012), the same constants (config.py ELO_*). One game is
+   one rating period; each 7 days without a game widens the uncertainty by one period. Only games against the computer count:
+   their opponents have a rating. Maia-3 / Maia / Stockfish's ratings are the app's own settings, taken as known within OPP_RD;
+   the weakened Stockfish below 1320 is uncalibrated (OPP_RD_ROUGH). Friends have no rating, so their games are a record only. */
+export const RATING = { scale: 173.7178, start: 1500, startRd: 350, startVol: 0.06, tau: 0.5, volEps: 1e-6, idleDays: 7,
+  oppRd: 60, oppRdRough: 120, provisionalRd: 110, z: 1.96, recent: 20, perfIter: 60, perfRange: [0, 4000] };
+export const KINDS = { m3: "Maia-3", maia: "Maia", sf: "Stockfish", weak: "Stockfish (weakened)", friend: "Friends" };
 export const THEMES = [
   { id: "pounamu", name: "Pounamu" }, { id: "toroa", name: "Iwi Toroa" },
   { id: "totara", name: "Whakairo Tōtara" }, { id: "ahika", name: "Te Ahi Kā" },
