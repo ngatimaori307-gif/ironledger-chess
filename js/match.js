@@ -5,15 +5,16 @@ import * as engine from "./engine.js";
 import { ALL_OPPONENTS } from "./config.js";
 import * as maia from "./maia.js";
 import * as maia3 from "./maia3.js";
+import * as guard from "./guard.js";
 import { addGame, setCurrent, beat } from "./store.js";
 import { kindOf } from "./rating.js";
 import { record } from "./log.js";
 
-export function newMatch({ mode, me, oppId = null, code = null, ladder = false, moves = [], startedAt = Date.now(), result = null, oppName = "" }) {
+export function newMatch({ mode, me, oppId = null, code = null, ladder = false, hc = null, moves = [], startedAt = Date.now(), result = null, oppName = "" }) {
   const chess = new Chess();
   const ok = [];
   for (const u of moves) { try { chess.move(uciObj(u)); ok.push(u); } catch { record("game", `a saved move didn't fit the rules: ${u}`); break; } }
-  return { mode, me, oppId, code, ladder, moves: ok, startedAt, result, oppName, chess, listeners: [] };
+  return { mode, me, oppId, code, ladder, hc, moves: ok, startedAt, result, oppName, chess, listeners: [] };
 }
 export function uciObj(u) { return { from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4] }; }
 export function opponent(m) { return ALL_OPPONENTS.find((o) => o.id === m.oppId) || null; }
@@ -54,7 +55,7 @@ export function finish(m, result, why) {
   for (const [k, v] of Object.entries(pgnHead)) m.chess.setHeader(k, v);
   const o = opponent(m);                                    // v1.4: the kind and rating kept for the Profile (friends: none)
   addGame({ at: Date.now(), mode: m.mode, opp: oppLabel(m), me: m.me, result, why, mine, moves: m.moves.length, pgn: m.chess.pgn(),
-    ...(o ? { oppId: o.id, oppRating: o.rating, kind: kindOf(o) } : {}), ladder: !!m.ladder });
+    ...(o ? { oppId: o.id, oppRating: o.rating, kind: kindOf(o) } : {}), ladder: !!m.ladder, ...(m.hc ? { hc: m.hc } : {}) });
   persist(m); m.listeners.forEach((fn) => fn("end", { result, why, mine }));
 }
 
@@ -63,7 +64,9 @@ export async function computerReply(m) {
   if (m.mode !== "computer" || m.result || m.chess.turn() === m.me) return null;
   const o = opponent(m), fen = m.chess.fen();
   try {
-    const u = o && o.m3 ? await maia3.move(m.moves, o.rating) : o && o.maia ? await maia.move(m.moves, o.rating) : await engine.move(fen, o);
+    const u = o && o.style ? (await engine.styledMove(fen, o.style, o.rating)).uci
+      : o && o.guard ? (await guard.guardMove(m.moves, o.rating)).uci : o && o.m3 ? await maia3.move(m.moves, o.rating)
+      : o && o.maia ? await maia.move(m.moves, o.rating) : await engine.move(fen, o);
     if (m.chess.fen() !== fen || m.result) return null;            // he took back or resigned meanwhile
     return play(m, uciObj(u));
   } catch (e) { record("engine", e.message); m.listeners.forEach((fn) => fn("error", e)); return null; }

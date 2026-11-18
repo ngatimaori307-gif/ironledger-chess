@@ -5,7 +5,7 @@ import { settings, saveSettings, games } from "../store.js";
 import { profile } from "../rating.js";
 import { esc } from "./ui.js";
 
-const ORDER = ["m3", "maia", "sf", "weak", "friend", "other"];
+const ORDER = ["m3", "guard", "maia", "styled", "sf", "weak", "friend", "other"];
 export function render(v) {
   const all = games(), p = profile(all);
   const rating = p.rating == null ? `<div class="ilc-plate__rank">No rating yet</div><div class="ilc-card__line">Play the computer: every game against it counts.</div>`

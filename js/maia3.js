@@ -36,10 +36,12 @@ export const ready = () => isReady;
 export function onReady(fn) { if (isReady) fn(); else readyListeners.add(fn); }
 /* starts the download and the network's set-up before the first move is needed */
 export function warm() { if (!isReady) ask({ warm: true }).catch((e) => record("maia3", `getting ready: ${e.message}`)); }
-/* moves: the game's moves so far (UCI, from the start); rating: Maia-3's own; oppo: its opponent's → Maia-3's move (UCI) */
-export async function move(moves, rating, oppo = rating) {
+/* moves: the game's moves so far (UCI, from the start); rating: Maia-3's own; oppo: its opponent's → {uci: probability} */
+export async function probabilities(moves, rating, oppo = rating) {
   const c = new Chess(), fens = [c.fen()];
   for (const u of moves) { c.move({ from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4] }); fens.push(c.fen()); }
   const legal = c.moves({ verbose: true }).map((m) => m.from + m.to + (m.promotion || ""));
-  return sample(await ask({ fens: fens.slice(-8), moves: legal, self: rating, oppo }));
+  return ask({ fens: fens.slice(-8), moves: legal, self: rating, oppo });
 }
+/* → Maia-3's move (UCI), drawn by its probability */
+export async function move(moves, rating, oppo = rating) { return sample(await probabilities(moves, rating, oppo)); }

@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.4.0", build: "2026-11-18" };
+export const APP = { name: "Iron Ledger Chess", version: "1.6.0", build: "2026-11-18" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -49,7 +49,32 @@ export const MAIA3 = { file: "vendor/maia3/maia3-5m.bin", sizeMb: 10, firstTimeo
 const MAIA3_NAMES = ["The Understudy", "The Shadow Pupil", "The Copyist", "The Parrot", "The Mimic", "The Echo", "The Double", "The Stand-In",
   "The Impostor", "The Doppelgänger", "The Changeling", "The Looking-Glass", "The Mirror Knight", "The Mirror Queen", "The Mirror King"];
 export const MAIA3_OPPONENTS = MAIA3_NAMES.map((name, i) => ({ id: `m3-${1100 + 100 * i}`, name, rating: 1100 + 100 * i, m3: true }));
-export const ALL_OPPONENTS = [...MAIA3_OPPONENTS, ...MAIA_OPPONENTS, ...OPPONENTS];
+/* v1.5 — Hardcore ladders, as Iron Ledger's hardcore.py (config.py HC_*): Human (the Maia-3 opponents), Engine (Stockfish, weakened
+   below 1320), Human + Guard (Maia-3's move, checked by Stockfish; a move that loses guard.drop win chance — the report's "mistake" —
+   is replaced by Maia-3's next likeliest move that doesn't, else Stockfish's own). Every rung open; a rung is beaten at beatenScore
+   of the points from at least beatenGames games. A draw offer is considered from move 20 and accepted only if the position is level. */
+export const HARDCORE = { beatenScore: 0.5, beatenGames: 2,
+  guard: { ratings: [1100, 2500, 100], drop: 20, depth: 12, ms: 400, alternatives: 5 },
+  draw: { minPly: 40, maxCp: 30, depth: 14, ms: 600 } };
+export const WIN_CHANCE = { k: 0.00368208, clampCp: 10000 };   // Lichess's curve (Iron Ledger's winchance.py)
+export const GUARD_OPPONENTS = [];
+for (let r = HARDCORE.guard.ratings[0]; r <= HARDCORE.guard.ratings[1]; r += HARDCORE.guard.ratings[2])
+  GUARD_OPPONENTS.push({ id: `g-${r}`, name: `Maia-3 ${r} + Stockfish guard`, rating: r, guard: true });
+export const HARDCORE_LADDERS = [["human", "🧠 Human"], ["engine", "⚙ Engine"], ["guard", "🛡 Human + Guard"]];
+/* v1.6 — engine personalities (Iron Ledger's personality.py, config.py PERSONALITY_*): a style chooses among Stockfish's best lines */
+export const PERSONALITY = { lines: 6, nodesAt: [1000, 2000, 2800], nodes: [3000, 60000, 600000], eloMin: 800, eloMax: 2800, eloStep: 100,
+  slackCp: { balanced: 0, aggressive: 70, tactical: 45, positional: 35, defensive: 45 }, noiseCp: 600, noiseUntil: 1400 };
+/* styled Stockfish opponents (spar.py: every style but balanced at PERSONALITY_SPAR_ELOS; names SPAR_PERSONAS["ps"]) */
+const STYLED_NAMES = { 1500: "The Duellist", 2000: "The Strategist", 2500: "The Grand Tactician" };
+const STYLE_LABEL = { aggressive: "Aggressive", tactical: "Tactical", positional: "Positional", defensive: "Defensive" };
+export const STYLED_OPPONENTS = Object.entries(STYLE_LABEL).flatMap(([st, label]) => Object.entries(STYLED_NAMES).map(([r, n]) =>
+  ({ id: `ps-${st}-${r}`, name: `${n} (${label})`, rating: Number(r), style: st })));
+/* v1.6 — game review, Iron Ledger's report.py rules (config.py ANALYSIS_LEVELS, REPORT_MULTIPV, GREAT_*, MISS_*, HC_REVIEW_*) */
+export const REVIEW = { levels: { quick: [12, 0.3], normal: [15, 0.8] }, multipv: 2, drop: { blunder: 30, mistake: 20, inaccuracy: 10 },
+  greatGap: 20, greatWon: 90, missFrom: 70, missTo: 55, kept: 200,
+  moments: 3, momentMinDrop: 10, okDrop: 10 };            // the review between Hardcore rungs
+export const DUEL = { maxPlies: 300, pauseMs: 700 };   // match.py MATCH_MAX_PLIES; match.js MATCH_PAUSE_MS
+export const ALL_OPPONENTS = [...MAIA3_OPPONENTS, ...MAIA_OPPONENTS, ...OPPONENTS, ...GUARD_OPPONENTS, ...STYLED_OPPONENTS];
 export const LADDER = { winsToClimb: 1 };          // a win against a rung opens the next one
 
 /* Play a Friend: the two phones meet once through PeerJS's public broker, then talk directly (WebRTC). */
@@ -74,7 +99,8 @@ export const LOG = {
   sendStallMs: 2000,                // … and sent to the developer only from this long
 };
 
-export const STORE = { settings: "ilc-settings", ladder: "ilc-ladder", games: "ilc-games", current: "ilc-current", friend: "ilc-friend" };
+export const STORE = { settings: "ilc-settings", ladder: "ilc-ladder", games: "ilc-games", current: "ilc-current", friend: "ilc-friend",
+  reports: "ilc-reports", hcReviews: "ilc-hc-reviews" };
 export const GAMES_KEPT = 500;                       // v1.4: finished games kept on the phone (~1 KB each), for the Profile and its rating
 /* v1.4 — the Profile's rating: Glicko-2 as Iron Ledger's elo.py (Glickman 2012), the same constants (config.py ELO_*). One game is
    one rating period; each 7 days without a game widens the uncertainty by one period. Only games against the computer count:
@@ -82,7 +108,7 @@ export const GAMES_KEPT = 500;                       // v1.4: finished games kep
    the weakened Stockfish below 1320 is uncalibrated (OPP_RD_ROUGH). Friends have no rating, so their games are a record only. */
 export const RATING = { scale: 173.7178, start: 1500, startRd: 350, startVol: 0.06, tau: 0.5, volEps: 1e-6, idleDays: 7,
   oppRd: 60, oppRdRough: 120, provisionalRd: 110, z: 1.96, recent: 20, perfIter: 60, perfRange: [0, 4000] };
-export const KINDS = { m3: "Maia-3", maia: "Maia", sf: "Stockfish", weak: "Stockfish (weakened)", friend: "Friends" };
+export const KINDS = { m3: "Maia-3", guard: "Maia-3 + guard", styled: "Stockfish (styled)", maia: "Maia", sf: "Stockfish", weak: "Stockfish (weakened)", friend: "Friends" };
 export const THEMES = [
   { id: "pounamu", name: "Pounamu" }, { id: "toroa", name: "Iwi Toroa" },
   { id: "totara", name: "Whakairo Tōtara" }, { id: "ahika", name: "Te Ahi Kā" },
