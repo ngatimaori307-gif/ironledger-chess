@@ -1,11 +1,11 @@
 /* Home: the game in progress first, then the three ways to play, then the last result. */
 import { current, games, ladder } from "../store.js";
-import { OPPONENTS } from "../config.js";
+import { OPPONENTS, ALL_OPPONENTS } from "../config.js";
 import { card, esc } from "./ui.js";
 
 export function render(v) {
   const cur = current(), last = games()[0], beaten = ladder().beaten, next = OPPONENTS.find((o) => !beaten.includes(o.id));
-  const resume = cur ? card("#game/resume", "▶", "Carry On", `Your game against ${OPPONENTS.find((o) => o.id === cur.oppId)?.name || "the computer"}, move ${Math.ceil(cur.moves.length / 2) || 1}`) : "";
+  const resume = cur ? card("#game/resume", "▶", "Carry On", `Your game against ${ALL_OPPONENTS.find((o) => o.id === cur.oppId)?.name || "the computer"}, move ${Math.ceil(cur.moves.length / 2) || 1}`) : "";
   v.innerHTML = `<section class="pg">
     <header class="home-head"><img src="img/icon-192.png" alt="" class="home-logo"><div><h1 class="ilc-title title-xl">Iron Ledger Chess</h1>
       <p class="ilc-card__line">Carved in pounamu, bone, tōtara and stone</p></div></header>
