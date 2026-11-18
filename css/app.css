@@ -99,3 +99,7 @@ input[type=text], input:not([type]), .field input, .link { min-height: 48px; pad
 html[data-theme="pounamu"], html:not([data-theme]) { background: var(--stone), var(--ground); background-attachment: fixed; }
 :is(html[data-theme="pounamu"], html:not([data-theme])) :is(.opp, .rung, .games li, .theme, .switch, .seg-opt span) {
   background: var(--stone), linear-gradient(170deg, var(--surface-raised) -30%, var(--surface) 55%); }
+/* Two kinds of opponent, one list at a time: Maia (plays like people) and Stockfish */
+.opp-tabs { margin-bottom: var(--space-2); }
+.opp-note { margin: 0 0 var(--space-2); }
+.opp-list[data-grp="maia"] .opp:not(.opp--maia), .opp-list[data-grp="sf"] .opp--maia { display: none; }

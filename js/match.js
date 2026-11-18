@@ -2,7 +2,8 @@
    (friend.js). Every move is checked by the rules (chess.js) before it is played, on both phones. */
 import { Chess } from "../vendor/chess.js";
 import * as engine from "./engine.js";
-import { OPPONENTS } from "./config.js";
+import { ALL_OPPONENTS } from "./config.js";
+import * as maia from "./maia.js";
 import { addGame, setCurrent, beat } from "./store.js";
 import { record } from "./log.js";
 
@@ -13,7 +14,7 @@ export function newMatch({ mode, me, oppId = null, code = null, ladder = false, 
   return { mode, me, oppId, code, ladder, moves: ok, startedAt, result, oppName, chess, listeners: [] };
 }
 export function uciObj(u) { return { from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4] }; }
-export function opponent(m) { return OPPONENTS.find((o) => o.id === m.oppId) || null; }
+export function opponent(m) { return ALL_OPPONENTS.find((o) => o.id === m.oppId) || null; }
 export function oppLabel(m) {
   if (m.mode === "friend") return m.oppName || "Your friend";
   const o = opponent(m); return o ? `${o.name} · ${o.rating}` : "The computer";
@@ -58,7 +59,7 @@ export async function computerReply(m) {
   if (m.mode !== "computer" || m.result || m.chess.turn() === m.me) return null;
   const o = opponent(m), fen = m.chess.fen();
   try {
-    const u = await engine.move(fen, o);
+    const u = o && o.maia ? await maia.move(m.moves, o.rating) : await engine.move(fen, o);
     if (m.chess.fen() !== fen || m.result) return null;            // he took back or resigned meanwhile
     return play(m, uciObj(u));
   } catch (e) { record("engine", e.message); m.listeners.forEach((fn) => fn("error", e)); return null; }

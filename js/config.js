@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.0.1", build: "2026-11-17" };
+export const APP = { name: "Iron Ledger Chess", version: "1.1.0", build: "2026-11-18" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -32,6 +32,17 @@ export const OPPONENTS = [
   { id: "sf-2900", name: "The Juggernaut", rating: 2900 }, { id: "sf-3000", name: "The Colossus", rating: 3000 },
   { id: "sf-3100", name: "The Leviathan", rating: 3100 }, { id: "sf-3190", name: "The Anvil", rating: 3190 },
 ];
+/* Maia opponents: they play like people at their rating (CSSLab's Maia networks, packed by tools/maia_pack.py). Names as in the
+   developer app (config.SPAR_NAMES["maia"]: townsfolk). They are not on The Ladder, which stays Stockfish's. */
+export const MAIA = { dir: "vendor/maia", minShare: 0.1, temperature: 1, timeoutMs: 30000 };
+export const MAIA_OPPONENTS = [
+  { id: "maia-1100", name: "Pip the Stable Boy", rating: 1100, maia: true }, { id: "maia-1200", name: "Tam the Baker", rating: 1200, maia: true },
+  { id: "maia-1300", name: "Mara the Weaver", rating: 1300, maia: true }, { id: "maia-1400", name: "Odo the Miller", rating: 1400, maia: true },
+  { id: "maia-1500", name: "Bren the Blacksmith", rating: 1500, maia: true }, { id: "maia-1600", name: "Isolde the Scribe", rating: 1600, maia: true },
+  { id: "maia-1700", name: "Garrick the Sergeant", rating: 1700, maia: true }, { id: "maia-1800", name: "Elowen the Merchant", rating: 1800, maia: true },
+  { id: "maia-1900", name: "Aldric the Steward", rating: 1900, maia: true }, { id: "maia-2200", name: "Seraphine the Court Champion", rating: 2200, maia: true },
+];
+export const ALL_OPPONENTS = [...MAIA_OPPONENTS, ...OPPONENTS];
 export const LADDER = { winsToClimb: 1 };          // a win against a rung opens the next one
 
 /* Play a Friend: the two phones meet once through PeerJS's public broker, then talk directly (WebRTC). */

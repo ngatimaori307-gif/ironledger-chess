@@ -1,0 +1,4 @@
+Maia chess networks — CSSLab, University of Toronto (McIlroy-Young, Sen, Kleinberg, Anderson, "Aligning Superhuman AI with
+Human Behavior: Chess as a Model System", KDD 2020). https://github.com/CSSLab/maia-chess — released under the GNU General
+Public License v3.0. The files here are the same networks (maia-1100 … maia-1900, maia-2200), re-packed for the browser by
+tools/maia_pack.py (float16 weights, batch-norm folded); the play is unchanged.

@@ -4,16 +4,19 @@ import hashlib, json, os, sys
 SITE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 SKIP = {"sw.js"}
 SKIP_DIRS = {"tools"}
+ON_USE = "vendor/maia"          # Maia's networks (1.2 MB each): kept offline the first time each is played, not all at install
 SKIP_EXT = (".map", ".LICENSE", ".txt", ".md")
 files = []
 for root, dirs, names in os.walk(SITE):
     dirs[:] = sorted(d for d in dirs if not d.startswith(".") and d not in SKIP_DIRS)
     for n in sorted(names):
         rel = os.path.relpath(os.path.join(root, n), SITE).replace(os.sep, "/")
-        if n in SKIP or n.endswith(SKIP_EXT) or n.startswith("."): continue
+        if n in SKIP or n.endswith(SKIP_EXT) or n.startswith(".") or rel.startswith(ON_USE + "/"): continue
         files.append(rel)
 h = hashlib.sha256()
 for f in files: h.update(f.encode()); h.update(open(os.path.join(SITE, f), "rb").read())
+on_use = sorted(os.listdir(os.path.join(SITE, ON_USE))) if os.path.isdir(os.path.join(SITE, ON_USE)) else []
+for n in on_use: h.update(n.encode()); h.update(open(os.path.join(SITE, ON_USE, n), "rb").read())   # a changed network: a new copy too
 version = h.hexdigest()[:12]
 sw = f"""/* Offline copy of Iron Ledger Chess (written by tools/build_sw.py — don't edit by hand). */
 const CACHE = "ilc-{version}";
@@ -23,7 +26,9 @@ self.addEventListener("activate", (e) => e.waitUntil(caches.keys().then((ks) => 
 self.addEventListener("fetch", (e) => {{
   const u = new URL(e.request.url);
   if (e.request.method !== "GET") return;
-  if (u.origin === location.origin) e.respondWith(caches.match(e.request, {{ ignoreSearch: true }}).then((r) => r || fetch(e.request)));
+  if (u.origin === location.origin && u.pathname.includes("/{ON_USE}/"))
+    e.respondWith(caches.open(CACHE).then((c) => c.match(e.request).then((r) => r || fetch(e.request).then((n) => {{ if (n.ok) c.put(e.request, n.clone()); return n; }}))));
+  else if (u.origin === location.origin) e.respondWith(caches.match(e.request, {{ ignoreSearch: true }}).then((r) => r || fetch(e.request)));
   else if (u.host.endsWith("fonts.googleapis.com") || u.host.endsWith("fonts.gstatic.com"))
     e.respondWith(caches.open(CACHE).then((c) => c.match(e.request).then((r) => r || fetch(e.request).then((n) => {{ c.put(e.request, n.clone()); return n; }}))));
 }});
