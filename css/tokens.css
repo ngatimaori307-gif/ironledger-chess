@@ -1,25 +1,27 @@
 /* Iron Ledger Chess — generated from tokens.json */
 :root, [data-theme="pounamu"] {
-  --ground: #10110D;
-  --surface: #1B2119;
+  --ground: #0A1711;
+  --surface: #112A1D;
+  --surface-raised: #183726;
   --surface-sunk: #0A0B08;
-  --line: #2F311D;
-  --ink: #E2D5B8;
-  --ink-muted: #B8AB75;
-  --brand: #2A6D52;
+  --line: #2C4D39;
+  --ink: #E6DCC3;
+  --ink-muted: #A9BC9E;
+  --brand: #2C6B49;
   --on-brand: #F3ECDD;
-  --gold: #C9B77A;
+  --gold: #CDBB7E;
   --engine: #3F7086;
   --engine-edge: #F3ECDD;
   --win: #83D1CD;
   --loss: #A3562B;
   --sq-light: #DCCFB2;
-  --sq-dark: #144632;
+  --sq-dark: #174A33;
   --shadow-card: 0 1px 2px rgba(0,0,0,0.35), 0 6px 18px rgba(0,0,0,0.25);
 }
 [data-theme="toroa"] {
   --ground: #E2D5B8;
   --surface: #EFE6D2;
+  --surface-raised: #D4C7AA;
   --surface-sunk: #D4C7AA;
   --line: #B9AC8E;
   --ink: #151314;
@@ -37,6 +39,7 @@
 [data-theme="totara"] {
   --ground: #22150F;
   --surface: #331E15;
+  --surface-raised: #3F271B;
   --surface-sunk: #170D09;
   --line: #562D1C;
   --ink: #E8D5C6;
@@ -54,6 +57,7 @@
 [data-theme="ahika"] {
   --ground: #1B130E;
   --surface: #2A1C13;
+  --surface-raised: #36261A;
   --surface-sunk: #120C08;
   --line: #452F20;
   --ink: #EBD3C2;
