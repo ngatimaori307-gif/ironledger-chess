@@ -64,7 +64,8 @@ export async function computerReply(m) {
   if (m.mode !== "computer" || m.result || m.chess.turn() === m.me) return null;
   const o = opponent(m), fen = m.chess.fen();
   try {
-    const u = o && o.guard ? (await guard.guardMove(m.moves, o.rating)).uci : o && o.m3 ? await maia3.move(m.moves, o.rating)
+    const u = o && o.style ? (await engine.styledMove(fen, o.style, o.rating)).uci
+      : o && o.guard ? (await guard.guardMove(m.moves, o.rating)).uci : o && o.m3 ? await maia3.move(m.moves, o.rating)
       : o && o.maia ? await maia.move(m.moves, o.rating) : await engine.move(fen, o);
     if (m.chess.fen() !== fen || m.result) return null;            // he took back or resigned meanwhile
     return play(m, uciObj(u));

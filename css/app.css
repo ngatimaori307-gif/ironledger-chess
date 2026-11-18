@@ -103,7 +103,8 @@ html[data-theme="pounamu"], html:not([data-theme]) { background: var(--stone), v
 .opp-tabs { margin-bottom: var(--space-2); }
 .opp-note { margin: 0 0 var(--space-2); }
 .opp-list[data-grp="m3"] .opp:not([data-kind="m3"]), .opp-list[data-grp="maia"] .opp:not([data-kind="maia"]),
-.opp-list[data-grp="sf"] .opp:not([data-kind="sf"]) { display: none; }
+.opp-list[data-grp="sf"] .opp:not([data-kind="sf"]), .opp-list[data-grp="ps"] .opp:not([data-kind="ps"]) { display: none; }
+.opp-tabs { grid-template-columns: repeat(4, 1fr); }
 /* The board's squares are always square (as in Iron Ledger): a row no longer grows to fit its pieces (1fr let a rank with pieces stand
    taller than an empty one — 31 to 61 px on a 360 px phone), and a piece is laid over its square instead of sizing it. */
 .bd-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr)); }
@@ -169,3 +170,15 @@ button.gm-san { background: none; border: 0; padding: 4px 2px; font: inherit; co
 /* v1.5: Hardcore ladders */
 .hc-rec { display: block; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
 .rung--open .rung-mark { color: var(--ink-muted); }
+/* v1.6: Engine Duel */
+.duel-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.duel-side select { display: block; width: 100%; min-width: 0; margin-top: var(--space-1); }
+.duel { grid-template-columns: minmax(0, 1fr); }
+.duel #du-board { width: min(100%, 60vh); margin: var(--space-2) auto; }
+/* v1.6: the review */
+.gm-san sup { font-size: 11px; margin-left: 1px; }
+.q-blunder, .q-blunder sup { color: var(--loss); } .q-mistake sup, .q-miss sup { color: var(--loss); } .q-inaccuracy sup { color: var(--gold); } .q-great sup { color: var(--win); }
+.rv-line { padding: 0 var(--space-3); min-height: 18px; }
+.rv { padding: 0 var(--space-3); display: grid; gap: var(--space-2); }
+.rv-start { align-items: center; } .rv-btns { display: flex; gap: var(--space-2); }
+.rv-moments li { grid-template-columns: auto 1fr; } .rv-try { margin-top: var(--space-2); display: block; }

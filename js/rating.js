@@ -54,7 +54,7 @@ export function opponentOf(g) {
   const name = String(g.opp || "").split(" · ")[0], o = ALL_OPPONENTS.find((x) => x.name === name);
   return o ? { kind: kindOf(o), rating: o.rating } : { kind: null, rating: null };
 }
-export const kindOf = (o) => (o.guard ? "guard" : o.m3 ? "m3" : o.maia ? "maia" : o.temp ? "weak" : "sf");
+export const kindOf = (o) => (o.style ? "styled" : o.guard ? "guard" : o.m3 ? "m3" : o.maia ? "maia" : o.temp ? "weak" : "sf");
 
 /* games: newest first, as kept → { rating, rd, low, high, provisional, n, perf, perfN, history, record, left } */
 export function profile(games) {
@@ -62,7 +62,8 @@ export function profile(games) {
   for (const g of [...games].reverse()) {
     const o = opponentOf(g);
     if (o.rating == null || !(g.mine in POINTS)) { if (o.kind !== "friend") left.push(g); continue; }
-    rows.push({ at: g.at, oe: o.rating, rd: o.kind === "weak" ? R.oppRdRough : R.oppRd, s: POINTS[g.mine] });
+    // weakened and styled Stockfish have approximate ratings: taken as less sure (oppRdRough)
+    rows.push({ at: g.at, oe: o.rating, rd: o.kind === "weak" || o.kind === "styled" ? R.oppRdRough : R.oppRd, s: POINTS[g.mine] });
   }
   const p = new Player(); let last = null; const history = [];
   for (const x of rows) {

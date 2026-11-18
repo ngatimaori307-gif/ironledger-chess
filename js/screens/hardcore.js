@@ -4,6 +4,7 @@ import { HARDCORE, HARDCORE_LADDERS, MAIA3_OPPONENTS, OPPONENTS, GUARD_OPPONENTS
 import { games, settings, saveSettings, setCurrent } from "../store.js";
 import { colorPicker, pickColor, esc } from "./ui.js";
 import { go } from "../app.js";
+import { reviews } from "../review.js";
 
 const RUNGS = { human: MAIA3_OPPONENTS, engine: OPPONENTS, guard: GUARD_OPPONENTS };
 const ABOUT = {
@@ -25,12 +26,14 @@ export function render(v, arg) {
     <p class="sub">No help, no take-backs. Every rung is open; a rung is beaten at ${Math.round(100 * HARDCORE.beatenScore)} % or more from at least ${HARDCORE.beatenGames} games.</p>
     <div class="seg" role="radiogroup" aria-label="Ladder">${HARDCORE_LADDERS.map(([k, l]) =>
       `<label class="seg-opt"><input type="radio" name="hl" value="${k}"${k === which ? " checked" : ""}><span>${l}</span></label>`).join("")}</div>
-    <p class="sub" id="hc-about"></p>
+    <p class="sub" id="hc-about"></p><p class="sub" id="hc-todo"></p>
     <h2 class="overline">You play</h2>${colorPicker("col", settings.lastColor || "w")}
     <ol class="rungs" id="hc-rungs"></ol></section>`;
   const show = (k) => {
     settings.lastHardcore = k; saveSettings(); history.replaceState(null, "", `#hardcore/${k}`);
     v.querySelector("#hc-about").textContent = ABOUT[k];
+    const done = reviews(), todo = games().filter((g) => g.hc === k && g.mine && !done[g.at]?.reviewed);   // as Iron Ledger: finished, not reviewed
+    v.querySelector("#hc-todo").innerHTML = todo.length ? `<a href="#replay/${todo[0].at}">${todo.length} game${todo.length === 1 ? "" : "s"} to review between rungs ›</a>` : "";
     const rs = rungs(k), you = rs.find((r) => !r.beaten);
     v.querySelector("#hc-rungs").innerHTML = rs.map((r) => {
       const state = r.beaten ? "done" : r === you ? "next" : "open";
