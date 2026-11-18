@@ -54,7 +54,7 @@ export function opponentOf(g) {
   const name = String(g.opp || "").split(" · ")[0], o = ALL_OPPONENTS.find((x) => x.name === name);
   return o ? { kind: kindOf(o), rating: o.rating } : { kind: null, rating: null };
 }
-export const kindOf = (o) => (o.m3 ? "m3" : o.maia ? "maia" : o.temp ? "weak" : "sf");
+export const kindOf = (o) => (o.guard ? "guard" : o.m3 ? "m3" : o.maia ? "maia" : o.temp ? "weak" : "sf");
 
 /* games: newest first, as kept → { rating, rd, low, high, provisional, n, perf, perfN, history, record, left } */
 export function profile(games) {

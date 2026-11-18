@@ -62,3 +62,18 @@ export function move(fen, opp) {
     return lines.at(-1).split(" ")[1];
   });
 }
+
+/* v1.5: Stockfish at full strength on one position — its score in centipawns for the side to move (a mate: ±100000), after its
+   own best move or after `only` (UCI "searchmoves"). For the Human + Guard ladder's checks and the draw offer. */
+export function analyse(fen, { depth, ms, only = null }) {
+  return exclusive(async () => {
+    await start();
+    send("setoption name UCI_LimitStrength value false"); send("setoption name MultiPV value 1");
+    send(`position fen ${fen}`); send(`go depth ${depth} movetime ${ms}${only ? ` searchmoves ${only}` : ""}`);
+    const lines = await waitFor((l) => l.startsWith("bestmove"), ENGINE.readyTimeoutMs + ms, "analyse");
+    let cp = null;
+    for (const l of lines) { const s = / score (cp|mate) (-?\d+)/.exec(l); if (s) cp = s[1] === "mate" ? Math.sign(Number(s[2]) || -1) * 100000 : Number(s[2]); }
+    const best = lines.at(-1).split(" ")[1];
+    return { cp, best: best && best !== "(none)" ? best : null };
+  });
+}

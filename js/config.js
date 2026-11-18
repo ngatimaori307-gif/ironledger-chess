@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.4.0", build: "2026-11-18" };
+export const APP = { name: "Iron Ledger Chess", version: "1.5.0", build: "2026-11-18" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -49,7 +49,19 @@ export const MAIA3 = { file: "vendor/maia3/maia3-5m.bin", sizeMb: 10, firstTimeo
 const MAIA3_NAMES = ["The Understudy", "The Shadow Pupil", "The Copyist", "The Parrot", "The Mimic", "The Echo", "The Double", "The Stand-In",
   "The Impostor", "The Doppelgänger", "The Changeling", "The Looking-Glass", "The Mirror Knight", "The Mirror Queen", "The Mirror King"];
 export const MAIA3_OPPONENTS = MAIA3_NAMES.map((name, i) => ({ id: `m3-${1100 + 100 * i}`, name, rating: 1100 + 100 * i, m3: true }));
-export const ALL_OPPONENTS = [...MAIA3_OPPONENTS, ...MAIA_OPPONENTS, ...OPPONENTS];
+/* v1.5 — Hardcore ladders, as Iron Ledger's hardcore.py (config.py HC_*): Human (the Maia-3 opponents), Engine (Stockfish, weakened
+   below 1320), Human + Guard (Maia-3's move, checked by Stockfish; a move that loses guard.drop win chance — the report's "mistake" —
+   is replaced by Maia-3's next likeliest move that doesn't, else Stockfish's own). Every rung open; a rung is beaten at beatenScore
+   of the points from at least beatenGames games. A draw offer is considered from move 20 and accepted only if the position is level. */
+export const HARDCORE = { beatenScore: 0.5, beatenGames: 2,
+  guard: { ratings: [1100, 2500, 100], drop: 20, depth: 12, ms: 400, alternatives: 5 },
+  draw: { minPly: 40, maxCp: 30, depth: 14, ms: 600 } };
+export const WIN_CHANCE = { k: 0.00368208, clampCp: 10000 };   // Lichess's curve (Iron Ledger's winchance.py)
+export const GUARD_OPPONENTS = [];
+for (let r = HARDCORE.guard.ratings[0]; r <= HARDCORE.guard.ratings[1]; r += HARDCORE.guard.ratings[2])
+  GUARD_OPPONENTS.push({ id: `g-${r}`, name: `Maia-3 ${r} + Stockfish guard`, rating: r, guard: true });
+export const HARDCORE_LADDERS = [["human", "🧠 Human"], ["engine", "⚙ Engine"], ["guard", "🛡 Human + Guard"]];
+export const ALL_OPPONENTS = [...MAIA3_OPPONENTS, ...MAIA_OPPONENTS, ...OPPONENTS, ...GUARD_OPPONENTS];
 export const LADDER = { winsToClimb: 1 };          // a win against a rung opens the next one
 
 /* Play a Friend: the two phones meet once through PeerJS's public broker, then talk directly (WebRTC). */
@@ -82,7 +94,7 @@ export const GAMES_KEPT = 500;                       // v1.4: finished games kep
    the weakened Stockfish below 1320 is uncalibrated (OPP_RD_ROUGH). Friends have no rating, so their games are a record only. */
 export const RATING = { scale: 173.7178, start: 1500, startRd: 350, startVol: 0.06, tau: 0.5, volEps: 1e-6, idleDays: 7,
   oppRd: 60, oppRdRough: 120, provisionalRd: 110, z: 1.96, recent: 20, perfIter: 60, perfRange: [0, 4000] };
-export const KINDS = { m3: "Maia-3", maia: "Maia", sf: "Stockfish", weak: "Stockfish (weakened)", friend: "Friends" };
+export const KINDS = { m3: "Maia-3", guard: "Maia-3 + guard", maia: "Maia", sf: "Stockfish", weak: "Stockfish (weakened)", friend: "Friends" };
 export const THEMES = [
   { id: "pounamu", name: "Pounamu" }, { id: "toroa", name: "Iwi Toroa" },
   { id: "totara", name: "Whakairo Tōtara" }, { id: "ahika", name: "Te Ahi Kā" },

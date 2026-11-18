@@ -166,3 +166,6 @@ button.gm-san { background: none; border: 0; padding: 4px 2px; font: inherit; co
 .rp-note:empty { display: none; }
 .rp-pgn { width: calc(100% - 2 * var(--space-3)); margin: 0 var(--space-3); min-height: 120px; font: 13px/1.4 ui-monospace, monospace; }
 .me-profile { display: block; color: inherit; text-decoration: none; }
+/* v1.5: Hardcore ladders */
+.hc-rec { display: block; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
+.rung--open .rung-mark { color: var(--ink-muted); }
