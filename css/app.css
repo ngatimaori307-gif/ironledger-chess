@@ -95,3 +95,7 @@ input[type=text], input:not([type]), .field input, .link { min-height: 48px; pad
 .bd-promo img { width: 52px; height: 52px; }
 .bd-promo span { font: 500 12px/16px var(--font-sans); }
 .bd-promo[hidden], .ask[hidden], [hidden] { display: none !important; }
+/* Pounamu is greenstone (as Iron Ledger v7.79): the stone's clouds and flecks on the page and on every raised surface (--stone: components.css) */
+html[data-theme="pounamu"], html:not([data-theme]) { background: var(--stone), var(--ground); background-attachment: fixed; }
+:is(html[data-theme="pounamu"], html:not([data-theme])) :is(.opp, .rung, .games li, .theme, .switch, .seg-opt span) {
+  background: var(--stone), linear-gradient(170deg, var(--surface-raised) -30%, var(--surface) 55%); }

@@ -1,5 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Cinzel:wght@500;600;700&display=swap");
 /* Iron Ledger Chess components. Every colour, space and radius is a token from tokens.json. */
-body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-sans); }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-sans); font-variant-numeric: lining-nums; }
 .ilc-title { font-family: var(--font-display); color: var(--gold); font-weight: 600; letter-spacing: .03em; margin: 0; }
 .ilc-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 48px; padding: 0 var(--space-4);
   border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--surface); color: var(--ink);
@@ -39,3 +40,12 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 .ilc-plate__fig { font: 700 28px/32px var(--font-display); color: var(--gold); text-align: right; }
 .ilc-plate__delta { font: 500 13px/18px var(--font-sans); }
 .ilc-up { color: var(--win); } .ilc-down { color: var(--loss); }
+/* the font shorthands above reset figures to Alegreya Sans' old-style ones: lining again (README → Type) */
+.ilc-btn, .ilc-card__name, .ilc-card__line, .ilc-tab, .ilc-plate__over, .ilc-plate__fig, .ilc-plate__delta { font-variant-numeric: lining-nums; }
+/* Pounamu is greenstone: the stone's clouds and flecks over the ground, the cards and the bars (README → Colour; as Iron Ledger v7.79) */
+:root:not([data-theme]), [data-theme="pounamu"] {
+  --stone: radial-gradient(120% 80% at 12% 18%, rgba(0, 0, 0, .38), transparent 62%), radial-gradient(90% 70% at 88% 82%, rgba(0, 0, 0, .3), transparent 66%),
+           radial-gradient(55% 45% at 72% 22%, rgba(74, 128, 92, .16), transparent 70%), radial-gradient(40% 35% at 30% 85%, rgba(74, 128, 92, .1), transparent 70%); }
+:root:not([data-theme]) body, [data-theme="pounamu"] body { background: var(--stone), var(--ground); }
+:root:not([data-theme]) :is(.ilc-card, .ilc-plate, .ilc-tabbar), [data-theme="pounamu"] :is(.ilc-card, .ilc-plate, .ilc-tabbar) {
+  background: var(--stone), linear-gradient(170deg, var(--surface-raised) -30%, var(--surface) 55%); }
