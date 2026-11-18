@@ -2,7 +2,7 @@
    side = { name, onMine(move), resign(), offerDraw?(), status? } — the computer or a friend's phone. */
 import { createBoard } from "../board.js";
 import { play, finish, lastMove, myTurn, oppLabel } from "../match.js";
-import { esc } from "./ui.js";
+import { esc, colorPicker } from "./ui.js";
 import { sound } from "../sound.js";
 
 export function mountGame(v, m, side) {
@@ -36,8 +36,8 @@ export function mountGame(v, m, side) {
     const el = v.querySelector("#gm-end"); el.hidden = false;
     const word = { win: "You won", loss: "You lost", draw: "A draw" }[m.mine];
     el.innerHTML = `<div class="ilc-plate"><div><div class="ilc-plate__over">${esc(m.why || "")}</div><div class="ilc-plate__rank">${word}</div></div>
-      <div class="gm-again">${side.again ? `<button class="ilc-btn ilc-btn--primary" id="gm-again">Play again</button>` : ""}<a class="ilc-btn" href="${side.back || "#play"}">Done</a></div></div>`;
-    v.querySelector("#gm-again")?.addEventListener("click", side.again);
+      <div class="gm-again">${side.again && side.againPick ? `<div class="gm-again-pick"><span class="ilc-card__line">Rematch, you play</span>${colorPicker("ag", side.againPick())}</div>` : ""}${side.again ? `<button class="ilc-btn ilc-btn--primary" id="gm-again">${side.againPick ? "Rematch" : "Play again"}</button>` : ""}<a class="ilc-btn" href="${side.back || "#play"}">Done</a></div></div>`;
+    v.querySelector("#gm-again")?.addEventListener("click", () => side.again(v.querySelector("input[name=ag]:checked")?.value));   // the colour he asks for (Play a Friend)
     v.querySelector("#gm-resign").hidden = true; const d = v.querySelector("#gm-draw"); if (d) d.hidden = true;
   }
   v.querySelector("#gm-flip").onclick = () => { flip = !flip; redraw(); };

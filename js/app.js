@@ -47,4 +47,5 @@ applyTheme();
 document.title = APP.name;
 addEventListener("hashchange", route);
 route();
+import("./presence.js").then((p) => p.start()).catch((e) => log.record("info", `invites not listened for: ${e.message}`));   // friends' invites pop up
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch((e) => log.record("info", `offline copy not set up: ${e.message}`));

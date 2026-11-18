@@ -8,6 +8,7 @@ import { mountGame } from "./gameview.js";
 import { colorPicker, pickColor, esc } from "./ui.js";
 import { onLeave, toast } from "../app.js";
 import { record } from "../log.js";
+import { myId, friends, addFriend, invite } from "../presence.js";
 
 export function render(v, arg) {
   if (arg && arg.startsWith("join:")) return joinScreen(v, cleanCode(arg.slice(5)));
@@ -15,17 +16,21 @@ export function render(v, arg) {
     <div class="ilc-plate col"><h2 class="overline">Invite</h2>${colorPicker("col", "r")}
       <div class="field"><label for="nm">Your name, as your friend sees it</label><input id="nm" maxlength="24" value="${esc(settings.name)}" placeholder="e.g. Dad"></div>
       <button class="ilc-btn ilc-btn--primary wide" id="mk">Make an invite</button></div>
+    ${friends().length ? `<div class="ilc-plate col"><h2 class="overline">Friends</h2><ul class="friends">${friends().map((f) => `<li><span>${esc(f.name)}</span><button class="ilc-btn ilc-btn--primary" data-inv="${esc(f.id)}">Invite</button></li>`).join("")}</ul>
+      <p class="sub">The invite pops up on their phone while their app is open.</p></div>` : ""}
     <div class="ilc-plate col"><h2 class="overline">Have a code?</h2>
       <div class="field"><label for="cd">Game code</label><input id="cd" maxlength="${FRIEND.codeLength}" autocapitalize="characters" autocomplete="off" placeholder="${"X".repeat(FRIEND.codeLength)}"></div>
       <button class="ilc-btn wide" id="jn">Join the game</button></div></section>`;
   const nameNow = () => { settings.name = v.querySelector("#nm").value.trim(); saveSettings(); return settings.name; };
   v.querySelector("#mk").onclick = () => { nameNow(); hostScreen(v, newCode(), pickColor(v.querySelector("input[name=col]:checked").value)); };
+  v.querySelectorAll("[data-inv]").forEach((b) => { b.onclick = () => { nameNow(); const f = friends().find((x) => x.id === b.dataset.inv);
+    hostScreen(v, newCode(), pickColor(v.querySelector("input[name=col]:checked").value), f); }; });
   v.querySelector("#jn").onclick = () => { nameNow(); const c = cleanCode(v.querySelector("#cd").value); if (c.length === FRIEND.codeLength) joinScreen(v, c); else toast(`A game code has ${FRIEND.codeLength} letters and numbers`); };
 }
 
-function session(v, { code, host, hostColor }) {
+function session(v, { code, host, hostColor, inviteTo = null }) {
   const kept = friendGames()[code] || {};
-  let m = null, link = null, ui = null, theirName = kept.oppName || "", myColor = host ? hostColor : kept.me || null;
+  let wantAgain = null, m = null, link = null, ui = null, theirName = kept.oppName || "", myColor = host ? hostColor : kept.me || null;
   const save = () => m && saveFriendGame(code, { me: m.me, moves: m.moves, oppName: theirName, result: m.result, at: Date.now() });
   const begin = (moves, me) => {
     myColor = me;
@@ -38,16 +43,18 @@ function session(v, { code, host, hostColor }) {
       onMine: (mv) => { link.send({ t: "move", uci: mv.from + mv.to + (mv.promotion || ""), ply: m.moves.length - 1 }); },
       resign: () => link.send({ t: "resign" }),
       offerDraw: () => { link.send({ t: "draw?" }); toast("Draw offered"); },
-      again: () => { link.send({ t: "again?" }); toast("Asked for another game"); },
+      againPick: () => settings.againColor || "r",
+      again: (want = "r") => { settings.againColor = want; saveSettings(); wantAgain = want; link.send({ t: "again?", want }); toast("Asked for a rematch"); },
     });
     save();
   };
   const onMessage = (msg) => {
-    if (msg.t === "_open") { if (!host) link.send({ t: "hello", v: PROTOCOL, name: settings.name, moves: kept.moves || [] }); if (ui) ui.redraw(); return; }
+    if (msg.t === "_open") { if (!host) link.send({ t: "hello", v: PROTOCOL, name: settings.name, id: myId(), moves: kept.moves || [] }); if (ui) ui.redraw(); return; }
+    if ((msg.t === "hello" || msg.t === "start") && msg.id) addFriend(msg.id, msg.name);   // a friend to invite next time
     if (msg.t === "hello" && host) {
       theirName = String(msg.name || "").slice(0, 24);
       const moves = mergeMoves(m ? m.moves : kept.moves || [], Array.isArray(msg.moves) ? msg.moves.map(String) : []);
-      link.send({ t: "start", v: PROTOCOL, hostColor, moves, name: settings.name });
+      link.send({ t: "start", v: PROTOCOL, hostColor, moves, name: settings.name, id: myId() });
       if (!m || moves.length !== m.moves.length) begin(moves, hostColor); else ui.redraw();
       return;
     }
@@ -60,8 +67,9 @@ function session(v, { code, host, hostColor }) {
     else if (msg.t === "draw?") drawAsk();
     else if (msg.t === "draw!") finish(m, "1/2-1/2", "agreed");
     else if (msg.t === "draw-no") toast("Draw declined");
-    else if (msg.t === "again?") againAsk();
-    else if (msg.t === "again!") restart();
+    else if (msg.t === "again?") againAsk(msg.want);
+    else if (msg.t === "again!") restart(wantAgain, true);
+    else if (msg.t === "again-no") toast(`${theirName || "Your friend"} said no to a rematch`);
   };
   function ask(text, yes, no) {
     const el = document.createElement("div"); el.className = "ask";
@@ -70,16 +78,31 @@ function session(v, { code, host, hostColor }) {
     v.append(el);
   }
   function drawAsk() { ask(`${theirName || "Your friend"} offers a draw`, () => { link.send({ t: "draw!" }); finish(m, "1/2-1/2", "agreed"); }, () => link.send({ t: "draw-no" })); }
-  function againAsk() { ask(`${theirName || "Your friend"} wants another game`, () => { link.send({ t: "again!" }); restart(); }, () => {}); }
-  function restart() { saveFriendGame(code, {}); kept.moves = []; if (host) { hostColor = hostColor === "w" ? "b" : "w"; link.send({ t: "start", v: PROTOCOL, hostColor, moves: [], name: settings.name }); begin([], hostColor); } }
+  function againAsk(want) {
+    const yours = want === "w" ? " — you'd play Black" : want === "b" ? " — you'd play White" : "";
+    ask(`${theirName || "Your friend"} wants a rematch${yours}`, () => { link.send({ t: "again!" }); restart(want, false); }, () => link.send({ t: "again-no" }));
+  }
+  /* The host deals the rematch: want = the colour the one who asked wants (w / b / r; none = colours swapped, as before); mine = this phone asked. */
+  function restart(want, mine) {
+    wantAgain = null; saveFriendGame(code, {}); kept.moves = []; if (!host) return;
+    const pick = want === "r" ? (crypto.getRandomValues(new Uint8Array(1))[0] % 2 ? "w" : "b") : want;
+    hostColor = pick === "w" || pick === "b" ? (mine ? pick : pick === "w" ? "b" : "w") : hostColor === "w" ? "b" : "w";
+    link.send({ t: "start", v: PROTOCOL, hostColor, moves: [], name: settings.name, id: myId() }); begin([], hostColor);
+  }
   link = new FriendLink({ code, host, name: settings.name, onMessage,
     onState: (s, detail) => { const el = v.querySelector("#fr-state"); if (el) el.textContent = detail || ""; if (ui) ui.redraw(); if (s === "failed" && !m) v.querySelector("#fr-state")?.classList.add("bad"); } });
   link.start();
+  if (inviteTo) {                                                             // the invite pops up on their phone
+    const el = () => v.querySelector("#fr-state");
+    el() && (el().textContent = `Invite sent to ${inviteTo.name} — waiting for them`);
+    invite(inviteTo, { code, hostColor, name: settings.name }).then((r) => { if (m) return; const e = el(); if (!e) return;
+      e.textContent = { accepted: `${inviteTo.name} accepted — connecting…`, declined: `${inviteTo.name} declined`, offline: `${inviteTo.name}'s app isn't open — send the link instead` }[r]; });
+  }
   onLeave(() => link.close());
   return { get myColor() { return myColor; } };
 }
 
-function hostScreen(v, code, hostColor) {
+function hostScreen(v, code, hostColor, inviteTo = null) {
   const url = inviteLink(code);
   v.innerHTML = `<section class="pg"><h1 class="ilc-title">Invite a Friend</h1>
     <div class="ilc-plate col"><p class="ilc-plate__over">Game code</p><p class="code">${code}</p>
@@ -92,7 +115,7 @@ function hostScreen(v, code, hostColor) {
     if (navigator.share) { try { await navigator.share({ title: "Iron Ledger Chess", text: "Play me at chess — open this link:", url }); return; } catch { /* closed the share sheet */ } }
     v.querySelector("#copy").click();
   };
-  session(v, { code, host: true, hostColor });
+  session(v, { code, host: true, hostColor, inviteTo });
 }
 function joinScreen(v, code) {
   v.innerHTML = `<section class="pg"><h1 class="ilc-title">Joining ${code}</h1><p class="ilc-card__line" id="fr-state">Connecting…</p></section>`;

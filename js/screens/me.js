@@ -1,5 +1,5 @@
 /* Me: your games, the look, sound, problem reports and what the app is built from. */
-import { APP, THEMES } from "../config.js";
+import { APP, THEMES, CAPTURE_FX } from "../config.js";
 import { settings, saveSettings, games, ladder } from "../store.js";
 import { applyTheme } from "../app.js";
 import { esc } from "./ui.js";
@@ -19,9 +19,13 @@ export function render(v) {
       <span class="sw"><i style="background:var(--sq-light)"></i><i style="background:var(--sq-dark)"></i></span><span>${esc(t.name)}</span></label>`).join("")}</div>
     <h2 class="overline">Settings</h2>
     <label class="switch"><span>Sounds</span><input type="checkbox" id="snd"${settings.sound ? " checked" : ""}></label>
+    <label class="switch"><span>Moving pieces</span><input type="checkbox" id="mot"${settings.motion !== "calm" ? " checked" : ""}></label>
+    <div class="field"><label for="cfx">When a piece is taken</label><select id="cfx">${CAPTURE_FX.map(([k, l]) => `<option value="${k}"${k === settings.captureFx ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     <h2 class="overline">About</h2>
     <p class="ilc-card__line">${APP.name} ${APP.version}. The sets are modern Māori art, his own designs. If something goes wrong, a short problem report (what happened, the phone's model and browser, the app's version) goes to the developer so it can be fixed. Chess engine: Stockfish 19 (GPL-3.0, <a href="https://github.com/official-stockfish/Stockfish">source</a>; in the browser by Stockfish.js). Rules: chess.js. Connections: PeerJS.</p>
   </section>`;
   v.querySelector(".themes").onchange = (e) => { settings.theme = e.target.value; saveSettings(); applyTheme(); };
   v.querySelector("#snd").onchange = (e) => { settings.sound = e.target.checked; saveSettings(); };
+  v.querySelector("#mot").onchange = (e) => { settings.motion = e.target.checked ? "full" : "calm"; saveSettings(); };
+  v.querySelector("#cfx").onchange = (e) => { settings.captureFx = e.target.value; saveSettings(); };
 }
