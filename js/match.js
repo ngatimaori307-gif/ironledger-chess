@@ -4,6 +4,7 @@ import { Chess } from "../vendor/chess.js";
 import * as engine from "./engine.js";
 import { ALL_OPPONENTS } from "./config.js";
 import * as maia from "./maia.js";
+import * as maia3 from "./maia3.js";
 import { addGame, setCurrent, beat } from "./store.js";
 import { record } from "./log.js";
 
@@ -59,7 +60,7 @@ export async function computerReply(m) {
   if (m.mode !== "computer" || m.result || m.chess.turn() === m.me) return null;
   const o = opponent(m), fen = m.chess.fen();
   try {
-    const u = o && o.maia ? await maia.move(m.moves, o.rating) : await engine.move(fen, o);
+    const u = o && o.m3 ? await maia3.move(m.moves, o.rating) : o && o.maia ? await maia.move(m.moves, o.rating) : await engine.move(fen, o);
     if (m.chess.fen() !== fen || m.result) return null;            // he took back or resigned meanwhile
     return play(m, uciObj(u));
   } catch (e) { record("engine", e.message); m.listeners.forEach((fn) => fn("error", e)); return null; }

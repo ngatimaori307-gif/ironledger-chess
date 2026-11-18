@@ -99,10 +99,11 @@ input[type=text], input:not([type]), .field input, .link { min-height: 48px; pad
 html[data-theme="pounamu"], html:not([data-theme]) { background: var(--stone), var(--ground); background-attachment: fixed; }
 :is(html[data-theme="pounamu"], html:not([data-theme])) :is(.opp, .rung, .games li, .theme, .switch, .seg-opt span) {
   background: var(--stone), linear-gradient(170deg, var(--surface-raised) -30%, var(--surface) 55%); }
-/* Two kinds of opponent, one list at a time: Maia (plays like people) and Stockfish */
+/* Three kinds of opponent, one list at a time: Maia-3, Maia (both play like people) and Stockfish */
 .opp-tabs { margin-bottom: var(--space-2); }
 .opp-note { margin: 0 0 var(--space-2); }
-.opp-list[data-grp="maia"] .opp:not(.opp--maia), .opp-list[data-grp="sf"] .opp--maia { display: none; }
+.opp-list[data-grp="m3"] .opp:not([data-kind="m3"]), .opp-list[data-grp="maia"] .opp:not([data-kind="maia"]),
+.opp-list[data-grp="sf"] .opp:not([data-kind="sf"]) { display: none; }
 /* The board's squares are always square (as in Iron Ledger): a row no longer grows to fit its pieces (1fr let a rank with pieces stand
    taller than an empty one — 31 to 61 px on a 360 px phone), and a piece is laid over its square instead of sizing it. */
 .bd-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr)); }

@@ -1,5 +1,5 @@
 /* Offline copy of Iron Ledger Chess (written by tools/build_sw.py — don't edit by hand). */
-const CACHE = "ilc-58296e2e869f";
+const CACHE = "ilc-5fc110575571";
 const FILES = [
 "./",
 "index.html",
@@ -20,6 +20,9 @@ const FILES = [
 "js/maia-net.js",
 "js/maia-worker.js",
 "js/maia.js",
+"js/maia3-net.js",
+"js/maia3-worker.js",
+"js/maia3.js",
 "js/match.js",
 "js/presence.js",
 "js/sound.js",
@@ -44,7 +47,7 @@ self.addEventListener("activate", (e) => e.waitUntil(caches.keys().then((ks) => 
 self.addEventListener("fetch", (e) => {
   const u = new URL(e.request.url);
   if (e.request.method !== "GET") return;
-  if (u.origin === location.origin && u.pathname.includes("/vendor/maia/"))
+  if (u.origin === location.origin && ["/vendor/maia/", "/vendor/maia3/"].some((d) => u.pathname.includes(d)))
     e.respondWith(caches.open(CACHE).then((c) => c.match(e.request).then((r) => r || fetch(e.request).then((n) => { if (n.ok) c.put(e.request, n.clone()); return n; }))));
   else if (u.origin === location.origin) e.respondWith(caches.match(e.request, { ignoreSearch: true }).then((r) => r || fetch(e.request)));
   else if (u.host.endsWith("fonts.googleapis.com") || u.host.endsWith("fonts.gstatic.com"))
