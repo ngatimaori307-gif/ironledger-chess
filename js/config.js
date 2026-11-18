@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.2.0", build: "2026-11-18" };
+export const APP = { name: "Iron Ledger Chess", version: "1.4.0", build: "2026-11-18" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -42,7 +42,14 @@ export const MAIA_OPPONENTS = [
   { id: "maia-1700", name: "Garrick the Sergeant", rating: 1700, maia: true }, { id: "maia-1800", name: "Elowen the Merchant", rating: 1800, maia: true },
   { id: "maia-1900", name: "Aldric the Steward", rating: 1900, maia: true }, { id: "maia-2200", name: "Seraphine the Court Champion", rating: 2200, maia: true },
 ];
-export const ALL_OPPONENTS = [...MAIA_OPPONENTS, ...OPPONENTS];
+/* Maia-3 opponents (CSSLab's Maia-3, model maia3-5m — the one Iron Ledger runs): one network for every rating, told its own
+   rating and its opponent's. Names and ratings as in the developer app (config.SPAR_NAMES["m3"], MAIA3_RATINGS 1100–2500 by 100).
+   It plays as the developer app's Maia-3 does: a move drawn by its probability (temperature 1). Not on The Ladder. */
+export const MAIA3 = { file: "vendor/maia3/maia3-5m.bin", sizeMb: 10, firstTimeoutMs: 180000, timeoutMs: 30000 };
+const MAIA3_NAMES = ["The Understudy", "The Shadow Pupil", "The Copyist", "The Parrot", "The Mimic", "The Echo", "The Double", "The Stand-In",
+  "The Impostor", "The Doppelgänger", "The Changeling", "The Looking-Glass", "The Mirror Knight", "The Mirror Queen", "The Mirror King"];
+export const MAIA3_OPPONENTS = MAIA3_NAMES.map((name, i) => ({ id: `m3-${1100 + 100 * i}`, name, rating: 1100 + 100 * i, m3: true }));
+export const ALL_OPPONENTS = [...MAIA3_OPPONENTS, ...MAIA_OPPONENTS, ...OPPONENTS];
 export const LADDER = { winsToClimb: 1 };          // a win against a rung opens the next one
 
 /* Play a Friend: the two phones meet once through PeerJS's public broker, then talk directly (WebRTC). */
@@ -68,7 +75,14 @@ export const LOG = {
 };
 
 export const STORE = { settings: "ilc-settings", ladder: "ilc-ladder", games: "ilc-games", current: "ilc-current", friend: "ilc-friend" };
-export const GAMES_KEPT = 50;
+export const GAMES_KEPT = 500;                       // v1.4: finished games kept on the phone (~1 KB each), for the Profile and its rating
+/* v1.4 — the Profile's rating: Glicko-2 as Iron Ledger's elo.py (Glickman 2012), the same constants (config.py ELO_*). One game is
+   one rating period; each 7 days without a game widens the uncertainty by one period. Only games against the computer count:
+   their opponents have a rating. Maia-3 / Maia / Stockfish's ratings are the app's own settings, taken as known within OPP_RD;
+   the weakened Stockfish below 1320 is uncalibrated (OPP_RD_ROUGH). Friends have no rating, so their games are a record only. */
+export const RATING = { scale: 173.7178, start: 1500, startRd: 350, startVol: 0.06, tau: 0.5, volEps: 1e-6, idleDays: 7,
+  oppRd: 60, oppRdRough: 120, provisionalRd: 110, z: 1.96, recent: 20, perfIter: 60, perfRange: [0, 4000] };
+export const KINDS = { m3: "Maia-3", maia: "Maia", sf: "Stockfish", weak: "Stockfish (weakened)", friend: "Friends" };
 export const THEMES = [
   { id: "pounamu", name: "Pounamu" }, { id: "toroa", name: "Iwi Toroa" },
   { id: "totara", name: "Whakairo Tōtara" }, { id: "ahika", name: "Te Ahi Kā" },

@@ -5,9 +5,9 @@ import { settings } from "./store.js";
 
 log.install();
 
-const SCREENS = { home: "home", play: "play", computer: "computer", ladder: "ladder", friend: "friend", game: "game", me: "me" };
-const TAB_OF = { home: "home", play: "play", computer: "play", ladder: "play", game: "play", friend: "friend", me: "me" };
-const BOARD_SCREENS = ["game"];
+const SCREENS = { home: "home", play: "play", computer: "computer", ladder: "ladder", friend: "friend", game: "game", me: "me", profile: "profile", replay: "replay" };
+const TAB_OF = { home: "home", play: "play", computer: "play", ladder: "play", game: "play", friend: "friend", me: "me", profile: "me", replay: "me" };
+const BOARD_SCREENS = ["game", "replay"];
 let token = 0, leave = null;
 
 export const view = () => document.getElementById("view");

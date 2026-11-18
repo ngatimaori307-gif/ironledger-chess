@@ -99,10 +99,11 @@ input[type=text], input:not([type]), .field input, .link { min-height: 48px; pad
 html[data-theme="pounamu"], html:not([data-theme]) { background: var(--stone), var(--ground); background-attachment: fixed; }
 :is(html[data-theme="pounamu"], html:not([data-theme])) :is(.opp, .rung, .games li, .theme, .switch, .seg-opt span) {
   background: var(--stone), linear-gradient(170deg, var(--surface-raised) -30%, var(--surface) 55%); }
-/* Two kinds of opponent, one list at a time: Maia (plays like people) and Stockfish */
+/* Three kinds of opponent, one list at a time: Maia-3, Maia (both play like people) and Stockfish */
 .opp-tabs { margin-bottom: var(--space-2); }
 .opp-note { margin: 0 0 var(--space-2); }
-.opp-list[data-grp="maia"] .opp:not(.opp--maia), .opp-list[data-grp="sf"] .opp--maia { display: none; }
+.opp-list[data-grp="m3"] .opp:not([data-kind="m3"]), .opp-list[data-grp="maia"] .opp:not([data-kind="maia"]),
+.opp-list[data-grp="sf"] .opp:not([data-kind="sf"]) { display: none; }
 /* The board's squares are always square (as in Iron Ledger): a row no longer grows to fit its pieces (1fr let a rank with pieces stand
    taller than an empty one — 31 to 61 px on a 360 px phone), and a piece is laid over its square instead of sizing it. */
 .bd-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr)); }
@@ -154,3 +155,14 @@ html[data-theme="pounamu"], html:not([data-theme]) { background: var(--stone), v
 @media (prefers-reduced-motion: reduce) { .invite-pop { animation: none; } }
 .invite-pop .ilc-plate { background: var(--surface-raised, var(--surface)); backdrop-filter: none; }
 .invite-pop { background: var(--surface-raised, var(--surface)); border-radius: var(--radius-lg, 16px); }
+/* v1.4: the Profile and the replay */
+.games li:has(> .pf-game) { padding: 0; display: block; }
+.pf-game { display: grid; grid-template-columns: auto 1fr; column-gap: var(--space-3); padding: var(--space-3); color: inherit; text-decoration: none; min-height: 48px; }
+.pf-game .ilc-card__line { grid-column: 2; }
+.pf-kinds li { grid-template-columns: 1fr auto; }
+.pf-kinds .pf-wdl { grid-column: 1; color: var(--ink-muted); font-size: 14px; }
+.pf-kinds .pf-score { grid-column: 2; grid-row: 1 / span 2; align-self: center; font: 600 20px/1 var(--font-display); color: var(--gold); }
+button.gm-san { background: none; border: 0; padding: 4px 2px; font: inherit; color: inherit; min-height: 32px; cursor: pointer; }
+.rp-note:empty { display: none; }
+.rp-pgn { width: calc(100% - 2 * var(--space-3)); margin: 0 var(--space-3); min-height: 120px; font: 13px/1.4 ui-monospace, monospace; }
+.me-profile { display: block; color: inherit; text-decoration: none; }
