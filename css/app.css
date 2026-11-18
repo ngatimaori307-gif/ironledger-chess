@@ -103,3 +103,19 @@ html[data-theme="pounamu"], html:not([data-theme]) { background: var(--stone), v
 .opp-tabs { margin-bottom: var(--space-2); }
 .opp-note { margin: 0 0 var(--space-2); }
 .opp-list[data-grp="maia"] .opp:not(.opp--maia), .opp-list[data-grp="sf"] .opp--maia { display: none; }
+/* The board's squares are always square (as in Iron Ledger): a row no longer grows to fit its pieces (1fr let a rank with pieces stand
+   taller than an empty one — 31 to 61 px on a 360 px phone), and a piece is laid over its square instead of sizing it. */
+.bd-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr)); }
+.bd-sq { min-width: 0; min-height: 0; overflow: hidden; }
+.bd-sq img { position: absolute; inset: 4%; width: 92%; height: 92%; }
+/* A phone on its side (or a short split-screen half): the board as tall as the window, the names, moves and buttons beside it */
+@media (orientation: landscape) and (max-height: 560px) {
+  .gm { max-width: none; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto 1fr auto; align-items: start;
+    padding: var(--space-2) var(--space-3); column-gap: var(--space-4); row-gap: var(--space-2); }
+  .gm > #gm-board { grid-column: 1; grid-row: 1 / span 4; }
+  .gm > :not(#gm-board) { grid-column: 2; }
+  .gm .bd { width: min(calc(100dvh - 2 * var(--space-2) - 8px), 60vw); }
+  .gm-bar { justify-content: flex-start; }
+}
+/* The coordinates in the squares' corners, over the pieces (".bd-sq span" made them sit in the square's flow: the stacked "h 8") */
+.bd-sq .bd-cf, .bd-sq .bd-cr { position: absolute; z-index: 2; }

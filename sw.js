@@ -1,5 +1,5 @@
 /* Offline copy of Iron Ledger Chess (written by tools/build_sw.py — don't edit by hand). */
-const CACHE = "ilc-fcbaeea8050d";
+const CACHE = "ilc-dd0d7653fc27";
 const FILES = [
 "./",
 "index.html",
