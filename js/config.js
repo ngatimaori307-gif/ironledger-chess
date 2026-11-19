@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.8.0", build: "2026-11-19" };
+export const APP = { name: "Iron Ledger Chess", version: "1.8.1", build: "2026-11-20" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -96,7 +96,9 @@ export const LOG = {
   ntfyUrl: "https://ntfy.sh/ilc-d10d5939ce87e8f05bdb30d9",
   sendAtMostEveryMs: 30000,         // one report at a time, at most this often
   slowFrameMs: 400,                 // a frame this late is logged as a stall …
-  sendStallMs: 2000,                // … and sent to the developer only from this long
+  sendStallMs: 2000,
+  resumeWaitMs: 1000,               // 1.8.1: a gap is judged this long after it ends, so a late "I'm back" from iOS is seen first …
+  resumeSlackMs: 250,               // … and a return this close before the gap began counts too                // … and sent to the developer only from this long
 };
 
 export const STORE = { settings: "ilc-settings", ladder: "ilc-ladder", games: "ilc-games", current: "ilc-current", friend: "ilc-friend",

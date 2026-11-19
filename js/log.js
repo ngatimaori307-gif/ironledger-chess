@@ -46,9 +46,21 @@ export function setSending(fn) { sendOn = fn; }
 export function install() {
   addEventListener("error", (ev) => record("error", ev.message || "error", { stack: ev.error && ev.error.stack, src: `${ev.filename || ""}:${ev.lineno || ""}` }));
   addEventListener("unhandledrejection", (ev) => { const r = ev.reason; record("promise", (r && r.message) || String(r), { stack: r && r.stack }); });
-  let last = performance.now();
-  const tick = (now) => { if (now - last > LOG.slowFrameMs && document.visibilityState === "visible") record("stall", `the page froze for ${Math.round(now - last)} ms`, { ms: Math.round(now - last) }); last = now; requestAnimationFrame(tick); };
-  document.addEventListener("visibilitychange", () => { last = performance.now(); });
+  /* 1.8.1: a long gap between frames is a freeze only if the app wasn't away. On iPhone a home-screen app back from the background
+     can draw its first frame before it says it is visible again (his dad's report 19 Nov 23:08: "froze for 25066 ms" on Carry On,
+     which never blocks here). So a gap is judged LOG.resumeWaitMs later: if the app came back (visible, pageshow, focus, resume)
+     around it, it is kept on the phone as "back after N s" and not sent; otherwise it is a stall as before. */
+  let last = performance.now(), backAt = -Infinity;
+  const back = () => { backAt = performance.now(); last = backAt; };
+  const judge = (start, end) => setTimeout(() => {
+    const ms = Math.round(end - start);
+    if (backAt >= start - LOG.resumeSlackMs && backAt <= end + LOG.resumeWaitMs) record("info", `back after ${Math.round(ms / 1000)} s away`, { ms });
+    else record("stall", `the page froze for ${ms} ms`, { ms });
+  }, LOG.resumeWaitMs);
+  const tick = (now) => { if (now - last > LOG.slowFrameMs && document.visibilityState === "visible") judge(last, now); last = now; requestAnimationFrame(tick); };
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") back(); else last = performance.now(); });
+  for (const ev of ["pageshow", "focus", "resume"]) addEventListener(ev, back);
+  document.addEventListener("resume", back);
   requestAnimationFrame(tick);
   record("info", "opened");
 }
