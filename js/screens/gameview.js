@@ -3,7 +3,7 @@
 import { createBoard } from "../board.js";
 import { play, finish, lastMove, myTurn, oppLabel } from "../match.js";
 import { esc, colorPicker } from "./ui.js";
-import { sound } from "../sound.js";
+import { sound, checkBeat, heartStop, warm } from "../sound.js";
 
 export function mountGame(v, m, side) {
   document.documentElement.setAttribute("data-board", "");             // the board takes the screen; the bottom bar comes back on the next screen
@@ -40,6 +40,7 @@ export function mountGame(v, m, side) {
     v.querySelector("#gm-again")?.addEventListener("click", () => side.again(v.querySelector("input[name=ag]:checked")?.value));   // the colour he asks for (Play a Friend)
     v.querySelector("#gm-resign").hidden = true; const d = v.querySelector("#gm-draw"); if (d) d.hidden = true;
   }
+  warm();                                                            // the pieces' recording, before the first move
   v.querySelector("#gm-flip").onclick = () => { flip = !flip; redraw(); };
   v.querySelector("#gm-resign").onclick = (e) => {
     const b = e.currentTarget; if (b.dataset.sure) { side.resign(); finish(m, m.me === "w" ? "0-1" : "1-0", "you resigned"); return; }
@@ -47,8 +48,11 @@ export function mountGame(v, m, side) {
   };
   v.querySelector("#gm-draw")?.addEventListener("click", () => side.offerDraw());
   m.listeners.push((kind, info) => {
-    if (kind === "move") { sound(info.captured ? "capture" : "move"); if (m.chess.inCheck()) sound("check"); }
-    if (kind === "end") sound(info.mine === "win" ? "win" : "end");
+    if (kind === "move") {                                         // v1.8: each piece its own voice; a heartbeat while in check (js/sound.js)
+      sound(info.captured ? "capture" : "move", info); if (m.chess.inCheck()) sound("check");
+      checkBeat(m.chess.fen(), m.chess.inCheck() && !m.result, () => v.querySelector("#gm-board")?.isConnected);
+    }
+    if (kind === "end") { heartStop(); sound(info.mine === "win" ? "win" : info.mine === "loss" ? "loss" : "end"); }
     redraw();
   });
   redraw();

@@ -3,6 +3,7 @@ import { APP, FRIEND, THEMES } from "./config.js";
 import * as log from "./log.js";
 import { settings } from "./store.js";
 import { applyBoard } from "./looks.js";
+import "./sound.js";                                           // v1.8: taps around the app and the fireside listen from the start
 
 log.install();
 

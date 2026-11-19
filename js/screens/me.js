@@ -6,6 +6,7 @@ import { BOARDS, PIECE_SETS, pieceSrc, boardThumb, applyBoard, pieceSet } from "
 import { esc } from "./ui.js";
 import { OPPONENTS } from "../config.js";
 import { profile } from "../rating.js";
+import { SCENE_NAMES, SCENE_VOLUMES, fireside } from "../sound.js";
 
 export function render(v) {
   const g = games(), w = g.filter((x) => x.mine === "win").length, d = g.filter((x) => x.mine === "draw").length, l = g.filter((x) => x.mine === "loss").length;
@@ -26,10 +27,15 @@ export function render(v) {
     <p class="ilc-card__line" id="set-by"></p>
     <h2 class="overline">Settings</h2>
     <label class="switch"><span>Sounds</span><input type="checkbox" id="snd"${settings.sound ? " checked" : ""}></label>
+    <div class="field"><label for="pv">Piece sounds</label><select id="pv">${[["characters", "Each piece its own"], ["metal", "Struck metal"]].map(([k, l]) => `<option value="${k}"${k === settings.pieceVoices ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+    <label class="switch"><span>Heartbeat in check</span><input type="checkbox" id="hb"${settings.checkBeat !== false ? " checked" : ""}></label>
+    <div class="field"><label for="ui">Sounds around the app</label><select id="ui">${[["off", "Off"], ["soft", "Soft"], ["on", "Full"]].map(([k, l]) => `<option value="${k}"${k === settings.uiSound ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+    <div class="field"><label for="amb">Fireside</label><select id="amb">${SCENE_NAMES.map(([k, l]) => `<option value="${k}"${k === settings.ambience ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+    <div class="field"><label for="amv">Fireside volume</label><select id="amv">${SCENE_VOLUMES.map(([k, l]) => `<option value="${k}"${k === Number(settings.ambienceVol) ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     <label class="switch"><span>Moving pieces</span><input type="checkbox" id="mot"${settings.motion !== "calm" ? " checked" : ""}></label>
     <div class="field"><label for="cfx">When a piece is taken</label><select id="cfx">${CAPTURE_FX.map(([k, l]) => `<option value="${k}"${k === settings.captureFx ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     <h2 class="overline">About</h2>
-    <p class="ilc-card__line">${APP.name} ${APP.version}. The sets are modern Māori art, his own designs. If something goes wrong, a short problem report (what happened, the phone's model and browser, the app's version) goes to the developer so it can be fixed. Chess engine: Stockfish 19 (GPL-3.0, <a href="https://github.com/official-stockfish/Stockfish">source</a>; in the browser by Stockfish.js). Opponents like people: Maia-3 (AGPL-3.0, <a href="https://github.com/CSSLab/maia3">source</a>) and Maia (GPL-3.0, <a href="https://github.com/CSSLab/maia-chess">source</a>), CSSLab, University of Toronto. Boards and the other piece sets: Lichess and its artists, each under its own licence (<a href="vendor/lichess/COPYING.md">list</a>). Rules: chess.js. Connections: PeerJS. This app's own source: <a href="https://github.com/ngatimaori307-gif/ironledger-chess">ironledger-chess</a>.</p>
+    <p class="ilc-card__line">${APP.name} ${APP.version}. The sets are modern Māori art, his own designs. If something goes wrong, a short problem report (what happened, the phone's model and browser, the app's version) goes to the developer so it can be fixed. Chess engine: Stockfish 19 (GPL-3.0, <a href="https://github.com/official-stockfish/Stockfish">source</a>; in the browser by Stockfish.js). Opponents like people: Maia-3 (AGPL-3.0, <a href="https://github.com/CSSLab/maia3">source</a>) and Maia (GPL-3.0, <a href="https://github.com/CSSLab/maia-chess">source</a>), CSSLab, University of Toronto. Sounds: recordings from Moodist (Pixabay licence / CC0) and Kenney's RPG Audio (CC0) — <a href="vendor/sounds/CREDITS.md">list</a>. Boards and the other piece sets: Lichess and its artists, each under its own licence (<a href="vendor/lichess/COPYING.md">list</a>). Rules: chess.js. Connections: PeerJS. This app's own source: <a href="https://github.com/ngatimaori307-gif/ironledger-chess">ironledger-chess</a>.</p>
   </section>`;
   v.querySelector(".themes").onchange = (e) => { settings.theme = e.target.value; saveSettings(); applyTheme(); };
   const by = () => { const s = pieceSet(); v.querySelector("#set-by").textContent = `${s.name}: ${s.by ? "by " + s.by + " · " : ""}${s.licence}`; };
@@ -37,6 +43,8 @@ export function render(v) {
   v.querySelector(".boards").onchange = (e) => { settings.board = e.target.value; saveSettings(); applyBoard(); };
   v.querySelector(".sets").onchange = (e) => { settings.pieces = e.target.value; saveSettings(); by(); };
   v.querySelector("#snd").onchange = (e) => { settings.sound = e.target.checked; saveSettings(); };
+  const set = (id, key, conv = (x) => x) => { v.querySelector(id).onchange = (e) => { settings[key] = conv(e.target.type === "checkbox" ? e.target.checked : e.target.value); saveSettings(); if (key.startsWith("ambience")) fireside(); }; };
+  set("#pv", "pieceVoices"); set("#hb", "checkBeat"); set("#ui", "uiSound"); set("#amb", "ambience"); set("#amv", "ambienceVol", Number);
   v.querySelector("#mot").onchange = (e) => { settings.motion = e.target.checked ? "full" : "calm"; saveSettings(); };
   v.querySelector("#cfx").onchange = (e) => { settings.captureFx = e.target.value; saveSettings(); };
 }
