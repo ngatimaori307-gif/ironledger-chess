@@ -109,10 +109,12 @@ function hostScreen(v, code, hostColor, inviteTo = null) {
       <p>Send your friend this link. When they open it, the game starts here. You play ${hostColor === "w" ? "White" : "Black"}.</p>
       <input class="link" readonly value="${esc(url)}" aria-label="Invite link">
       <div class="row"><button class="ilc-btn ilc-btn--primary" id="share">Send the link</button><button class="ilc-btn" id="copy">Copy</button></div>
-      <p class="ilc-card__line" id="fr-state">Setting up…</p></div></section>`;
+      <p class="ilc-card__line" id="fr-state">Setting up…</p>
+      <p class="sub">If Messenger won't send it: tap Copy, open your chat with them and paste it — or read them the code; they type it under Play a Friend → Have a code?
+        Come back to this screen afterwards: the game waits here.</p></div></section>`;
   v.querySelector("#copy").onclick = async () => { try { await navigator.clipboard.writeText(url); toast("Link copied"); } catch { v.querySelector(".link").select(); toast("Hold the link to copy it"); } };
   v.querySelector("#share").onclick = async () => {
-    if (navigator.share) { try { await navigator.share({ title: "Iron Ledger Chess", text: "Play me at chess — open this link:", url }); return; } catch { /* closed the share sheet */ } }
+    if (navigator.share) { try { await navigator.share({ text: `Play me at chess — game code ${code}: ${url}` }); return; } catch { /* closed the share sheet */ } }
     v.querySelector("#copy").click();
   };
   session(v, { code, host: true, hostColor, inviteTo });

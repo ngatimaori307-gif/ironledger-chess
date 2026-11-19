@@ -26,10 +26,11 @@ input[type=text], input:not([type]), .field input, .link { min-height: 48px; pad
 .seg-opt span { display: grid; place-items: center; min-height: 48px; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--surface); }
 .seg-opt input:checked + span { border-color: var(--gold); color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
 .seg-opt input:focus-visible + span, .opp input:focus-visible ~ .opp-name, .theme input:focus-visible + .sw { outline: 2px solid var(--gold); outline-offset: 2px; }
-.opp-list { display: grid; gap: var(--space-2); max-height: 46vh; overflow-y: auto; padding: 2px; }
+.opp-list { display: grid; gap: var(--space-2); padding: 2px; }   /* v1.6.1: no scroll inside the page (it held the finger on iPhone) */
 .opp { position: relative; display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 var(--space-4);
   border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--line); cursor: pointer; }
-.opp:has(input:checked) { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+.opp--last { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }   /* the opponent played last */
+.opp { gap: var(--space-3); } .opp-name { flex: 1; } .opp-play { min-height: 40px; padding: 0 var(--space-4); }
 .opp-name { font: 600 16px/22px var(--font-display); }
 .opp-rating, .rung-rating { font: 700 16px/22px var(--font-display); color: var(--gold); }
 .rungs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
@@ -182,3 +183,19 @@ button.gm-san { background: none; border: 0; padding: 4px 2px; font: inherit; co
 .rv { padding: 0 var(--space-3); display: grid; gap: var(--space-2); }
 .rv-start { align-items: center; } .rv-btns { display: flex; gap: var(--space-2); }
 .rv-moments li { grid-template-columns: auto 1fr; } .rv-try { margin-top: var(--space-2); display: block; }
+
+/* v1.7 — boards and piece sets (js/looks.js): a picture board lies under transparent squares; the pickers in Me */
+html[data-boardpic] .bd-grid { background: var(--board-img) center / 100% 100% no-repeat; }
+html[data-boardpic] :is(.bd-l, .bd-d) { background: transparent; }
+.looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--space-2); }
+.look-tile { position: relative; display: grid; justify-items: center; gap: 4px; padding: var(--space-2); border-radius: var(--radius-md);
+  background: var(--surface); border: 1px solid var(--line); text-align: center; font-size: 13px; line-height: 16px; cursor: pointer; }
+.look-tile input { position: absolute; opacity: 0; pointer-events: none; }
+.look-tile:has(input:checked) { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); color: var(--gold); }
+.look-tile input:focus-visible ~ .look-pic { outline: 2px solid var(--gold); outline-offset: 2px; }
+.look-pic { width: 56px; height: 56px; border-radius: var(--radius-sm); overflow: hidden; object-fit: cover; }
+.look-pic.sw { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.look-pic.sw i:nth-child(1), .look-pic.sw i:nth-child(4) { background: var(--l, var(--sq-light)); }
+.look-pic.sw i:nth-child(2), .look-pic.sw i:nth-child(3) { background: var(--d, var(--sq-dark)); }
+.set-pic { display: grid; grid-template-columns: 1fr 1fr; align-items: center; width: 72px; background: linear-gradient(90deg, var(--sq-light) 50%, var(--sq-dark) 50%); }
+.set-pic img { width: 100%; height: auto; }

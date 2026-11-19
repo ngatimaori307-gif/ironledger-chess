@@ -4,7 +4,7 @@ import hashlib, json, os, sys
 SITE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 SKIP = {"sw.js"}
 SKIP_DIRS = {"tools"}
-ON_USE = ("vendor/maia", "vendor/maia3")   # Maia's networks (1.2 MB each) and Maia-3's (10 MB): kept offline the first time each is played, not at install
+ON_USE = ("vendor/maia", "vendor/maia3", "vendor/lichess")   # Maia's networks (1.2 MB each) and Maia-3's (10 MB): kept offline the first time each is played, not at install
 SKIP_EXT = (".map", ".LICENSE", ".txt", ".md")
 files = []
 for root, dirs, names in os.walk(SITE):
@@ -17,7 +17,9 @@ h = hashlib.sha256()
 for f in files: h.update(f.encode()); h.update(open(os.path.join(SITE, f), "rb").read())
 for d in ON_USE:
     if not os.path.isdir(os.path.join(SITE, d)): continue
-    for n in sorted(os.listdir(os.path.join(SITE, d))): h.update((d + n).encode()); h.update(open(os.path.join(SITE, d, n), "rb").read())   # a changed network: a new copy too
+    for root, dirs, names in os.walk(os.path.join(SITE, d)):          # v1.7: vendor/lichess has folders (a set each)
+        dirs.sort()
+        for n in sorted(names): f = os.path.join(root, n); h.update(os.path.relpath(f, SITE).encode()); h.update(open(f, "rb").read())   # a changed network or picture: a new copy too
 version = h.hexdigest()[:12]
 sw = f"""/* Offline copy of Iron Ledger Chess (written by tools/build_sw.py — don't edit by hand). */
 const CACHE = "ilc-{version}";

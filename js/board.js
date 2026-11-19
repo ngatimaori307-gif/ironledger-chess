@@ -6,6 +6,7 @@
    ringed. A redraw writes only the squares that changed, so the selected piece's lift animates and a running move isn't cut. */
 import { ANIM_MS, MOTION } from "./config.js";
 import { settings } from "./store.js";
+import { pieceSrc } from "./looks.js";
 
 const FILES = "abcdefgh";
 const PROMO = ["q", "r", "b", "n"];
@@ -24,7 +25,7 @@ export function createBoard(host, { onMove, canMove }) {
   const squares = {}, shown = new Map();                          // square → its button; button → the markup it shows
   for (let i = 0; i < 64; i++) { const b = document.createElement("button"); b.type = "button"; b.className = "bd-sq"; grid.append(b); }
   function order() { const out = []; for (let r = 7; r >= 0; r--) for (let f = 0; f < 8; f++) out.push(FILES[f] + (r + 1)); return flipped ? out.reverse() : out; }
-  function pieceImg(p) { return `<img alt="" src="${window.WOOD_PIECES[p.color + p.type.toUpperCase()]}" draggable="false">`; }
+  function pieceImg(p) { return `<img alt="" src="${pieceSrc(p.color + p.type.toUpperCase())}" draggable="false">`; }   // v1.7: the chosen set (js/looks.js)
   function draw() {
     const sqs = order(), targets = picked ? new Set(chess.moves({ square: picked, verbose: true }).map((m) => m.to)) : new Set();
     const checkSq = chess.inCheck() ? sqs.find((s) => { const p = chess.get(s); return p && p.type === "k" && p.color === chess.turn(); }) : null;

@@ -2,6 +2,7 @@
 import { APP, FRIEND, THEMES } from "./config.js";
 import * as log from "./log.js";
 import { settings } from "./store.js";
+import { applyBoard } from "./looks.js";
 
 log.install();
 
@@ -43,7 +44,7 @@ async function route() {
   }
 }
 
-applyTheme();
+applyTheme(); applyBoard();
 document.title = APP.name;
 addEventListener("hashchange", route);
 route();
