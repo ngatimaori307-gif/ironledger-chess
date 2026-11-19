@@ -33,6 +33,13 @@ export async function start() {
   p.on("connection", (c) => c.on("data", (d) => { let m = d; if (typeof d === "string") { try { m = JSON.parse(d); } catch { return; } } if (m && m.t === "invite") popUp(c, m); }));
   p.on("disconnected", () => setTimeout(() => { if (state.peer === p && !p.destroyed) p.reconnect(); }, FRIEND.reconnectEveryMs));
   p.on("error", (e) => { if (e.type === "unavailable-id") { p.destroy(); if (state.peer === p) state.peer = null; } });   // the app open twice: the other one listens
+  if (!state.watching) {                                         // v1.6.1: iOS closes the server link while the app is away — re-make it on return
+    state.watching = true;
+    const back = () => { if (document.visibilityState !== "visible") return; const q = state.peer;
+      if (q && !q.destroyed && q.disconnected) { try { q.reconnect(); } catch { /* re-made below */ } }
+      else if (q && q.destroyed) { state.peer = null; start(); } };
+    document.addEventListener("visibilitychange", back); addEventListener("online", back); addEventListener("pageshow", back);
+  }
   return true;
 }
 function popUp(conn, m) {
