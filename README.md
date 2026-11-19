@@ -16,6 +16,9 @@ The sets and colours are modern Māori art, designed by the developer of Iron Le
   Iron Ledger runs), told both players' ratings. The checkpoint (https://huggingface.co/UofTCSSLab/Maia3-5M) is re-packed for the
   browser in `vendor/maia3/` (tools/maia3_pack.py, half precision, no PyTorch needed) and run by `js/maia3-net.js`, a JavaScript
   copy of the model's maths; licence in `vendor/maia3/LICENSE.txt`; source: https://github.com/CSSLab/maia3
+- Boards and piece sets (Me → Board, Me → Pieces): Lichess's board pictures (AGPLv3+) and its 33 openly licensed piece sets, each
+  under its own licence — `vendor/lichess/`, list in `vendor/lichess/COPYING.md` (tools/looks_pack.py); Iron Ledger's own colour boards
+  and its Staunton wood set
 - chess.js (BSD-2-Clause) for the rules — `vendor/chess.js`
 - PeerJS (MIT) for Play a Friend — `vendor/peerjs.min.js`
 - Fonts: Cinzel and Alegreya Sans (SIL Open Font License), from Google Fonts
