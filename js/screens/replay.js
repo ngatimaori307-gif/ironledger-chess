@@ -48,7 +48,7 @@ export function render(v, arg) {
     trying = null; board.lock(true);
     at = Math.max(0, Math.min(sans.length, n));
     board.set(position(at), { lastMove: at ? moves[at - 1] : null, flip });
-    if (step && at) { const x = moves[at - 1]; sound(x.captured ? "capture" : "move"); }
+    if (step && at) { const x = moves[at - 1]; sound(x.captured ? "capture" : "move", x); }
     const list = v.querySelector("#gm-moves");
     list.innerHTML = sans.map((s, i) => { const q = rep?.moves[i]?.quality;
       return (i % 2 ? "" : `<span class="gm-no">${i / 2 + 1}.</span>`) + `<button type="button" class="gm-san${i === at - 1 ? " on" : ""}${q && MARK[q] ? ` q-${q}` : ""}" data-ply="${i + 1}">${esc(s)}${q && MARK[q] ? `<sup>${MARK[q]}</sup>` : ""}</button>`; }).join("");

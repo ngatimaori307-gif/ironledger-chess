@@ -46,7 +46,7 @@ export function render(v) {
     let r; try { r = await engine.styledMove(fen, side.style, side.elo); } catch (e) { msg(esc(e.message)); return false; }
     if (gone || c.fen() !== fen) return false;
     const mv = c.move({ from: r.uci.slice(0, 2), to: r.uci.slice(2, 4), promotion: r.uci[4] }); plies++;
-    board.set(c, { lastMove: mv }); sound(mv.captured ? "capture" : "move");
+    board.set(c, { lastMove: mv }); sound(mv.captured ? "capture" : "move", mv);
     const sans = c.history(), list = v.querySelector("#du-moves");
     list.innerHTML = sans.map((s, i) => (i % 2 ? "" : `<span class="gm-no">${i / 2 + 1}.</span>`) + `<span class="gm-san${i === sans.length - 1 ? " on" : ""}">${esc(s)}</span>`).join(""); list.scrollLeft = 1e6;
     msg(`${who} (${esc(STYLE_NAMES[side.style])} ${side.elo}): <b>${esc(mv.san)}</b> — ${esc(r.why)} · Stockfish ${r.cp >= 0 ? "+" : ""}${(Math.max(-9999, Math.min(9999, r.cp)) / 100).toFixed(2)} for ${who}`);
