@@ -6,6 +6,7 @@ import { Chess } from "../../vendor/chess.js";
 import { createBoard } from "../board.js";
 import { games } from "../store.js";
 import { esc } from "./ui.js";
+import { toolsHtml, wireTools } from "./gameview.js";
 import { sound } from "../sound.js";
 import { record } from "../log.js";
 import { go, onLeave } from "../app.js";
@@ -36,13 +37,14 @@ export function render(v, arg) {
       <button class="ilc-btn" data-go="next" aria-label="Forward one move">▶</button><button class="ilc-btn" data-go="end" aria-label="To the end">⏭</button>
       <button class="ilc-btn" id="rp-flip" aria-label="Turn the board">⇅</button>
     </nav>
+    <nav class="gm-tools" aria-label="Board tools">${toolsHtml()}</nav>
     <div class="rv" id="rv"></div>
     <nav class="gm-bar"><button class="ilc-btn" id="rp-copy">Copy PGN</button>${navigator.share ? `<button class="ilc-btn" id="rp-share">Share</button>` : ""}<button class="ilc-btn" id="rp-duel">Engine Duel from here</button></nav>
     <p class="sub rp-note" id="rp-note" role="status"></p></section>`;
   let at = sans.length, flip = g.me === "b", rep = rv.loadReport(g.at), trying = null, gone = false;
   onLeave(() => { gone = true; });
   const board = createBoard(v.querySelector("#gm-board"), { canMove: () => !!trying, onMove: (mv) => tried(mv) });
-  board.lock(true);
+  board.lock(true); wireTools(v, board);   // 1.10.0: ✎ Draw and ◫ Tension while looking back over a game
   function position(n) { const c = new Chess(); moves.slice(0, n).forEach((x) => c.move(x.san)); return c; }
   function show(n, step) {
     trying = null; board.lock(true);

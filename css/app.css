@@ -199,3 +199,41 @@ html[data-boardpic] :is(.bd-l, .bd-d) { background: transparent; }
 .look-pic.sw i:nth-child(2), .look-pic.sw i:nth-child(3) { background: var(--d, var(--sq-dark)); }
 .set-pic { display: grid; grid-template-columns: 1fr 1fr; align-items: center; width: 72px; background: linear-gradient(90deg, var(--sq-light) 50%, var(--sq-dark) 50%); }
 .set-pic img { width: 100%; height: auto; }
+/* 1.10.0 — Iron Ledger's board visuals: your arrows (v8.12 shapes, four inks), Tension threads (v8.11), the raised board (v8.12) */
+.bd-marks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; overflow: visible; }
+.bd-marks .usr { stroke: #E0763B; stroke-linecap: round; } .bd-marks .usr-head, .bd-marks .usr-dot { fill: #E0763B; } .bd-marks .usr-ring { stroke: #E0763B; }
+.bd-marks .usr1 { stroke: #3FA34D; } .bd-marks .usr1-head, .bd-marks .usr1-dot { fill: #3FA34D; } .bd-marks .usr1-ring { stroke: #3FA34D; }
+.bd-marks .usr2 { stroke: #3D7FD6; } .bd-marks .usr2-head, .bd-marks .usr2-dot { fill: #3D7FD6; } .bd-marks .usr2-ring { stroke: #3D7FD6; }
+.bd-marks .usr3 { stroke: #D64834; } .bd-marks .usr3-head, .bd-marks .usr3-dot { fill: #D64834; } .bd-marks .usr3-ring { stroke: #D64834; }
+.bd-marks .ab { stroke: rgba(0, 0, 0, .35); stroke-width: .014; stroke-linejoin: round; }
+.bd-marks .as { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.bd-marks .ash { fill: rgba(0, 0, 0, .28); } .bd-marks .ash-line { fill: none; stroke: rgba(0, 0, 0, .28); stroke-linejoin: round; stroke-linecap: round; }
+.bd-marks .ahl { fill: none; stroke: rgba(255, 255, 255, .35); stroke-linecap: round; }
+.bd-marks [class$="-ring"] { opacity: .9; }
+.bd-num { font: 700 .22px/1 system-ui, sans-serif; fill: #fff; text-anchor: middle; dominant-baseline: central; }
+.bd-tremble { animation: bd-tremble .14s steps(2) infinite alternate; }
+@keyframes bd-tremble { from { transform: translate(calc(var(--j) * -1px), calc(var(--j) * 1px)); } to { transform: translate(calc(var(--j) * 1px), calc(var(--j) * -1px)); } }
+.bd-lost { animation: bd-pulse 1.2s ease-in-out infinite; } @keyframes bd-pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .bd-tremble, .bd-lost { animation: none; } }
+.bd[data-drawing] .bd-grid { outline: 2px dashed var(--gold); outline-offset: 2px; cursor: crosshair; }
+:root { --frame: 7px; --slab: 14px; }
+:root[data-raised] .bd { width: calc(min(100vw, 640px, calc(100dvh - 230px)) - 2 * var(--frame) - 6px); margin: calc(var(--frame) + 2px) auto calc(var(--frame) + var(--slab) + 8px); }
+:root[data-raised] .bd-grid {
+  --frame-c: color-mix(in srgb, var(--sq-dark) 55%, #14110E);
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--frame-c) 60%, #fff), 0 0 0 var(--frame) var(--frame-c), 0 0 0 calc(var(--frame) + 1px) rgba(0, 0, 0, .55),
+              0 calc(var(--slab) / 3) 0 var(--frame) color-mix(in srgb, var(--frame-c) 74%, #000),
+              0 calc(var(--slab) * 2 / 3) 0 var(--frame) color-mix(in srgb, var(--frame-c) 56%, #000),
+              0 var(--slab) 0 var(--frame) color-mix(in srgb, var(--frame-c) 40%, #000),
+              0 var(--slab) 0 calc(var(--frame) + 1px) rgba(0, 0, 0, .6),
+              0 calc(var(--frame) + var(--slab) + 4px) 16px 2px rgba(0, 0, 0, .45);
+}
+.gm-tools { display: flex; gap: var(--space-2); justify-content: center; flex-wrap: wrap; padding: 0 var(--space-3); }
+.gm-tool { min-height: 40px; padding: 0 var(--space-3); }
+.gm-tool[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.gm-ink span { display: block; width: 18px; height: 18px; border-radius: 50%; background: #E0763B; box-shadow: 0 0 0 2px rgba(255,255,255,.6); }
+.gm-ink[data-ink="1"] span { background: #3FA34D; } .gm-ink[data-ink="2"] span { background: #3D7FD6; } .gm-ink[data-ink="3"] span { background: #D64834; }
+@media (orientation: landscape) and (max-height: 560px) {   /* 1.10.0: the raised board sideways keeps the board's own height rule (above), less its frame and side */
+  :root[data-raised] .gm .bd { width: min(calc(100dvh - 2 * var(--space-2) - 2 * var(--frame) - var(--slab) - 18px), 60vw); margin: calc(var(--frame) + 2px) calc(var(--frame) + 2px) calc(var(--frame) + var(--slab) + 8px); }
+  .gm-tools { justify-content: flex-start; }
+}

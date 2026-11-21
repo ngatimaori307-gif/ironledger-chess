@@ -3,6 +3,7 @@
 import { createBoard } from "../board.js";
 import { play, finish, lastMove, myTurn, oppLabel } from "../match.js";
 import { esc, colorPicker } from "./ui.js";
+import { settings, saveSettings } from "../store.js";
 import { sound, checkBeat, heartStop, warm } from "../sound.js";
 
 export function mountGame(v, m, side) {
@@ -17,12 +18,14 @@ export function mountGame(v, m, side) {
       <button class="ilc-btn" id="gm-flip" aria-label="Turn the board">⇅</button>
       ${side.offerDraw ? `<button class="ilc-btn" id="gm-draw">Offer a draw</button>` : ""}
       <button class="ilc-btn" id="gm-resign">Resign</button>
-    </nav></section>`;
+    </nav>
+    <nav class="gm-tools" aria-label="Board tools">${toolsHtml()}</nav></section>`;
   let flip = m.me === "b";
   const board = createBoard(v.querySelector("#gm-board"), {
     canMove: () => myTurn(m) && !side.paused?.(),
     onMove: (mv) => { const done = play(m, mv); if (done) side.onMine(done); else redraw(); },
   });
+  wireTools(v, board);
   function redraw() {
     const lm = lastMove(m); board.set(m.chess, { lastMove: lm, flip }); board.lock(!myTurn(m));
     const sans = m.chess.history();
@@ -57,4 +60,24 @@ export function mountGame(v, m, side) {
   });
   redraw();
   return { redraw, board };
+}
+
+/* 1.10.0 — Iron Ledger's board tools (v8.12 ✎ Draw with four inks, v8.11 ◫ layers): ✎ turns drawing on (a drag draws an arrow, a
+   tap circles a square; the same again removes it); the dot picks the ink (orange, green, blue, red — an ink with two or more arrows
+   is a path, numbered in the order drawn); ⌫ clears this position's drawings; ◫ Tension shows who attacks what. Drawings and
+   layers are your own marks and counts, never the engine's, so they work in every game, a friend's too. */
+export const INK_NAMES = ["orange", "green", "blue", "red"];
+export function toolsHtml() {
+  return `<button class="ilc-btn gm-tool" id="gm-pen" aria-pressed="false" aria-label="Draw arrows and circles">✎ Draw</button>
+    <button class="ilc-btn gm-tool gm-ink" id="gm-ink" data-ink="0" aria-label="Ink: orange" hidden><span></span></button>
+    <button class="ilc-btn gm-tool" id="gm-wipe" aria-label="Clear the drawings here" hidden>⌫</button>
+    <button class="ilc-btn gm-tool" id="gm-tension" aria-pressed="${!!settings.layerTension}" aria-label="Tension: who attacks what">◫ Tension</button>`;
+}
+export function wireTools(v, board) {
+  const pen = v.querySelector("#gm-pen"), inkB = v.querySelector("#gm-ink"), wipe = v.querySelector("#gm-wipe"), ten = v.querySelector("#gm-tension");
+  if (!pen) return;
+  pen.onclick = () => { const on = board.draw(pen.getAttribute("aria-pressed") !== "true"); pen.setAttribute("aria-pressed", on); inkB.hidden = wipe.hidden = !on; };
+  inkB.onclick = () => { const k = board.ink(board.ink() + 1); inkB.dataset.ink = k; inkB.setAttribute("aria-label", "Ink: " + INK_NAMES[k]); };
+  wipe.onclick = () => board.clearMarks();
+  ten.onclick = () => { settings.layerTension = !settings.layerTension; saveSettings(); ten.setAttribute("aria-pressed", settings.layerTension); board.layers(); };
 }

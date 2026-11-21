@@ -32,6 +32,7 @@ export function render(v) {
     <div class="field"><label for="ui">Sounds around the app</label><select id="ui">${[["off", "Off"], ["soft", "Soft"], ["on", "Full"]].map(([k, l]) => `<option value="${k}"${k === settings.uiSound ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     <div class="field"><label for="amb">Fireside</label><select id="amb">${SCENE_NAMES.map(([k, l]) => `<option value="${k}"${k === settings.ambience ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     <div class="field"><label for="amv">Fireside volume</label><select id="amv">${SCENE_VOLUMES.map(([k, l]) => `<option value="${k}"${k === Number(settings.ambienceVol) ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+    <label class="switch"><span>A raised board, its side and shadow</span><input type="checkbox" id="edge"${settings.boardEdge !== "flat" ? " checked" : ""}></label>
     <label class="switch"><span>Moving pieces</span><input type="checkbox" id="mot"${settings.motion !== "calm" ? " checked" : ""}></label>
     <div class="field"><label for="cfx">When a piece is taken</label><select id="cfx">${CAPTURE_FX.map(([k, l]) => `<option value="${k}"${k === settings.captureFx ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     <h2 class="overline">About</h2>
@@ -45,6 +46,7 @@ export function render(v) {
   v.querySelector("#snd").onchange = (e) => { settings.sound = e.target.checked; saveSettings(); };
   const set = (id, key, conv = (x) => x) => { v.querySelector(id).onchange = (e) => { settings[key] = conv(e.target.type === "checkbox" ? e.target.checked : e.target.value); saveSettings(); if (key.startsWith("ambience")) fireside(); }; };
   set("#pv", "pieceVoices"); set("#hb", "checkBeat"); set("#ui", "uiSound"); set("#amb", "ambience"); set("#amv", "ambienceVol", Number);
+  v.querySelector("#edge").onchange = (e) => { settings.boardEdge = e.target.checked ? "raised" : "flat"; saveSettings(); applyBoard(); };
   v.querySelector("#mot").onchange = (e) => { settings.motion = e.target.checked ? "full" : "calm"; saveSettings(); };
   v.querySelector("#cfx").onchange = (e) => { settings.captureFx = e.target.value; saveSettings(); };
 }

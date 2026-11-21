@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.9.0", build: "2026-11-21" };
+export const APP = { name: "Iron Ledger Chess", version: "1.10.0", build: "2026-11-21" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -115,7 +115,7 @@ export const THEMES = [
   { id: "pounamu", name: "Pounamu" }, { id: "toroa", name: "Iwi Toroa" },
   { id: "totara", name: "Whakairo Tōtara" }, { id: "ahika", name: "Te Ahi Kā" },
 ];
-export const DEFAULTS = { pieceVoices: "characters", checkBeat: true, uiSound: "soft", ambience: "off", ambienceVol: 0.6, board: "look", pieces: "wood", theme: "pounamu", sound: true, name: "", showCoords: true, motion: "full", captureFx: "topple" };
+export const DEFAULTS = { pieceVoices: "characters", checkBeat: true, uiSound: "soft", ambience: "off", ambienceVol: 0.6, board: "look", pieces: "wood", theme: "pounamu", sound: true, name: "", showCoords: true, motion: "full", captureFx: "topple", boardEdge: "raised", layerTension: false };   // 1.10.0: the raised board, Tension off
 export const ANIM_MS = 160;
 /* The board's motion, Iron Ledger's own numbers (app.js: KNIGHT_ARC_STEPS, LAND_AT, LAND_SQUASH, LAND_STRETCH; app/board2d.js) */
 export const MOTION = { moveMs: 160, ease: "cubic-bezier(.65,0,.35,1)", knightSteps: 8, landAt: 0.82, landSquash: 0.12, landStretch: 0.07,
