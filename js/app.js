@@ -7,8 +7,8 @@ import "./sound.js";                                           // v1.8: taps aro
 
 log.install();
 
-const SCREENS = { home: "home", play: "play", computer: "computer", ladder: "ladder", hardcore: "hardcore", duel: "duel", friend: "friend", game: "game", me: "me", profile: "profile", replay: "replay" };
-const TAB_OF = { home: "home", play: "play", computer: "play", ladder: "play", hardcore: "play", duel: "play", game: "play", friend: "friend", me: "me", profile: "me", replay: "me" };
+const SCREENS = { home: "home", play: "play", computer: "computer", ladder: "ladder", hardcore: "hardcore", duel: "duel", friend: "friend", game: "game", me: "me", profile: "profile", replay: "replay", train: "train" };
+const TAB_OF = { home: "home", play: "play", computer: "play", ladder: "play", hardcore: "play", duel: "play", game: "play", friend: "friend", me: "me", profile: "me", replay: "me", train: "train" };
 const BOARD_SCREENS = ["game", "replay"];
 let token = 0, leave = null;
 

@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.9.0", build: "2026-11-21" };
+export const APP = { name: "Iron Ledger Chess", version: "1.14.0", build: "2026-11-21" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -72,7 +72,17 @@ export const STYLED_OPPONENTS = Object.entries(STYLE_LABEL).flatMap(([st, label]
 /* v1.6 — game review, Iron Ledger's report.py rules (config.py ANALYSIS_LEVELS, REPORT_MULTIPV, GREAT_*, MISS_*, HC_REVIEW_*) */
 export const REVIEW = { levels: { quick: [12, 0.3], normal: [15, 0.8] }, multipv: 2, drop: { blunder: 30, mistake: 20, inaccuracy: 10 },
   greatGap: 20, greatWon: 90, missFrom: 70, missTo: 55, kept: 200,
-  moments: 3, momentMinDrop: 10, okDrop: 10 };            // the review between Hardcore rungs
+  moments: 3, momentMinDrop: 10, okDrop: 10,
+  sharpOnly: 20, sharpTense: 8 };                          // 1.12.0: Iron Ledger's sharpness (config SHARP_ONLY, SHARP_TENSE)
+/* 1.12.0: the Illusion window, Iron Ledger's numbers (config ILLUSION_*): the replies Maia-3 gives at least minP, the top `replies`,
+   each judged by Stockfish to `depth`; it "holds" when his chance stays within `hold` points of before his move. */
+/* 1.14.0: the playstyle — Iron Ledger's numbers (config STYLE_*, PROFILE_MIN_PLIES, report OPENING_PLIES / ENDGAME_MATERIAL, robust ROBUST_*) */
+export const STYLE = { minGames: 10, minEvents: 5, earlyMoves: 15, queenEarlyMoves: 5, queensOffMove: 25, winningWc: 75, diffShown: 0.15,
+  uniqueShown: 4, strengthsShown: 3, openingMin: 5, clip: 1.0, minPlies: 10, openingPlies: 24, endgameMaterial: 26,
+  trim: 0.2, permRuns: 1000, permSeed: 1966, p: 0.05 };
+/* 1.13.0: Train — Iron Ledger's numbers (puzzles.py ALT_WIN_DROP 5, CHECK_LIMIT depth 14 / 1 s; a session of 10 puzzles) */
+export const TRAIN = { session: 10, altDrop: 5, depth: 14, ms: 1000, peekMs: 3000 };
+export const ILLUSION = { replies: 6, minP: 0.05, depth: 14, ms: 2500, hold: 5, kept: 200, rating: [1100, 2500] };            // the review between Hardcore rungs
 export const DUEL = { maxPlies: 300, pauseMs: 700 };   // match.py MATCH_MAX_PLIES; match.js MATCH_PAUSE_MS
 export const ALL_OPPONENTS = [...MAIA3_OPPONENTS, ...MAIA_OPPONENTS, ...OPPONENTS, ...GUARD_OPPONENTS, ...STYLED_OPPONENTS];
 export const LADDER = { winsToClimb: 1 };          // a win against a rung opens the next one
@@ -115,7 +125,7 @@ export const THEMES = [
   { id: "pounamu", name: "Pounamu" }, { id: "toroa", name: "Iwi Toroa" },
   { id: "totara", name: "Whakairo Tōtara" }, { id: "ahika", name: "Te Ahi Kā" },
 ];
-export const DEFAULTS = { pieceVoices: "characters", checkBeat: true, uiSound: "soft", ambience: "off", ambienceVol: 0.6, board: "look", pieces: "wood", theme: "pounamu", sound: true, name: "", showCoords: true, motion: "full", captureFx: "topple" };
+export const DEFAULTS = { pieceVoices: "characters", checkBeat: true, uiSound: "soft", ambience: "off", ambienceVol: 0.6, board: "look", pieces: "wood", theme: "pounamu", sound: true, name: "", showCoords: true, motion: "full", captureFx: "topple", boardEdge: "raised", layerTension: false, boardView: "flat" };   // 1.11.0: 3D is his to choose (an iPhone tab's memory)   // 1.10.0: the raised board, Tension off
 export const ANIM_MS = 160;
 /* The board's motion, Iron Ledger's own numbers (app.js: KNIGHT_ARC_STEPS, LAND_AT, LAND_SQUASH, LAND_STRETCH; app/board2d.js) */
 export const MOTION = { moveMs: 160, ease: "cubic-bezier(.65,0,.35,1)", knightSteps: 8, landAt: 0.82, landSquash: 0.12, landStretch: 0.07,

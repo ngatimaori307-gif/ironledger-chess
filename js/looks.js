@@ -30,6 +30,7 @@ export function applyBoard() {
   const b = board(), root = document.documentElement;
   for (const k of ["--sq-light", "--sq-dark", "--board-img"]) root.style.removeProperty(k);
   root.toggleAttribute("data-boardpic", !!b.file);
+  root.toggleAttribute("data-raised", settings.boardEdge !== "flat");      // 1.10.0: the board's thickness, Iron Ledger's v8.12
   if (b.light) { root.style.setProperty("--sq-light", b.light); root.style.setProperty("--sq-dark", b.dark); }
   if (b.file) root.style.setProperty("--board-img", `url("${new URL(DIR + "board/" + b.file, document.baseURI).href}")`);   // a full address: a url() in a variable is read from the stylesheet's folder
 }

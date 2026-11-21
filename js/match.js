@@ -60,13 +60,18 @@ export function finish(m, result, why) {
 }
 
 /* The computer's turn: asks the engine, then plays its answer. */
+/* 1.13.0: the opponent's move (UCI) for a position — its own engine: a style, the guard, Maia-3, Maia or Stockfish. Shared with
+   Blindfold, whose games aren't saved. */
+export async function opponentMove(o, moves, fen) {
+  return o && o.style ? (await engine.styledMove(fen, o.style, o.rating)).uci
+    : o && o.guard ? (await guard.guardMove(moves, o.rating)).uci : o && o.m3 ? await maia3.move(moves, o.rating)
+    : o && o.maia ? await maia.move(moves, o.rating) : await engine.move(fen, o);
+}
 export async function computerReply(m) {
   if (m.mode !== "computer" || m.result || m.chess.turn() === m.me) return null;
   const o = opponent(m), fen = m.chess.fen();
   try {
-    const u = o && o.style ? (await engine.styledMove(fen, o.style, o.rating)).uci
-      : o && o.guard ? (await guard.guardMove(m.moves, o.rating)).uci : o && o.m3 ? await maia3.move(m.moves, o.rating)
-      : o && o.maia ? await maia.move(m.moves, o.rating) : await engine.move(fen, o);
+    const u = await opponentMove(o, m.moves, fen);
     if (m.chess.fen() !== fen || m.result) return null;            // he took back or resigned meanwhile
     return play(m, uciObj(u));
   } catch (e) { record("engine", e.message); m.listeners.forEach((fn) => fn("error", e)); return null; }

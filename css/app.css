@@ -11,7 +11,7 @@ a { color: var(--gold); }
 .sub { color: var(--ink-muted); margin: 0; }
 .overline { font: 600 12px/16px var(--font-sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); margin: var(--space-2) 0 0; }
 .cards { display: grid; gap: var(--space-3); }
-.ilc-tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; grid-template-columns: repeat(4, 1fr); padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom)); }
+.ilc-tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; grid-template-columns: repeat(5, 1fr); padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom)); }   /* 1.13.0: five tabs (Train) */
 .home-head { display: flex; gap: var(--space-4); align-items: center; }
 .home-logo { width: 64px; height: 64px; border-radius: var(--radius-md); box-shadow: var(--shadow-card); }
 .wide { width: 100%; }
@@ -199,3 +199,81 @@ html[data-boardpic] :is(.bd-l, .bd-d) { background: transparent; }
 .look-pic.sw i:nth-child(2), .look-pic.sw i:nth-child(3) { background: var(--d, var(--sq-dark)); }
 .set-pic { display: grid; grid-template-columns: 1fr 1fr; align-items: center; width: 72px; background: linear-gradient(90deg, var(--sq-light) 50%, var(--sq-dark) 50%); }
 .set-pic img { width: 100%; height: auto; }
+/* 1.10.0 — Iron Ledger's board visuals: your arrows (v8.12 shapes, four inks), Tension threads (v8.11), the raised board (v8.12) */
+.bd-marks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; overflow: visible; }
+.bd-marks .usr { stroke: #E0763B; stroke-linecap: round; } .bd-marks .usr-head, .bd-marks .usr-dot { fill: #E0763B; } .bd-marks .usr-ring { stroke: #E0763B; }
+.bd-marks .usr1 { stroke: #3FA34D; } .bd-marks .usr1-head, .bd-marks .usr1-dot { fill: #3FA34D; } .bd-marks .usr1-ring { stroke: #3FA34D; }
+.bd-marks .usr2 { stroke: #3D7FD6; } .bd-marks .usr2-head, .bd-marks .usr2-dot { fill: #3D7FD6; } .bd-marks .usr2-ring { stroke: #3D7FD6; }
+.bd-marks .usr3 { stroke: #D64834; } .bd-marks .usr3-head, .bd-marks .usr3-dot { fill: #D64834; } .bd-marks .usr3-ring { stroke: #D64834; }
+.bd-marks .ab { stroke: rgba(0, 0, 0, .35); stroke-width: .014; stroke-linejoin: round; }
+.bd-marks .as { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.bd-marks .ash { fill: rgba(0, 0, 0, .28); } .bd-marks .ash-line { fill: none; stroke: rgba(0, 0, 0, .28); stroke-linejoin: round; stroke-linecap: round; }
+.bd-marks .ahl { fill: none; stroke: rgba(255, 255, 255, .35); stroke-linecap: round; }
+.bd-marks [class$="-ring"] { opacity: .9; }
+.bd-num { font: 700 .22px/1 system-ui, sans-serif; fill: #fff; text-anchor: middle; dominant-baseline: central; }
+.bd-tremble { animation: bd-tremble .14s steps(2) infinite alternate; }
+@keyframes bd-tremble { from { transform: translate(calc(var(--j) * -1px), calc(var(--j) * 1px)); } to { transform: translate(calc(var(--j) * 1px), calc(var(--j) * -1px)); } }
+.bd-lost { animation: bd-pulse 1.2s ease-in-out infinite; } @keyframes bd-pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .bd-tremble, .bd-lost { animation: none; } }
+.bd[data-drawing] .bd-grid { outline: 2px dashed var(--gold); outline-offset: 2px; cursor: crosshair; }
+:root { --frame: 7px; --slab: 14px; }
+:root[data-raised] .bd { width: calc(min(100vw, 640px, calc(100dvh - 230px)) - 2 * var(--frame) - 6px); margin: calc(var(--frame) + 2px) auto calc(var(--frame) + var(--slab) + 8px); }
+:root[data-raised] .bd-grid {
+  --frame-c: color-mix(in srgb, var(--sq-dark) 55%, #14110E);
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--frame-c) 60%, #fff), 0 0 0 var(--frame) var(--frame-c), 0 0 0 calc(var(--frame) + 1px) rgba(0, 0, 0, .55),
+              0 calc(var(--slab) / 3) 0 var(--frame) color-mix(in srgb, var(--frame-c) 74%, #000),
+              0 calc(var(--slab) * 2 / 3) 0 var(--frame) color-mix(in srgb, var(--frame-c) 56%, #000),
+              0 var(--slab) 0 var(--frame) color-mix(in srgb, var(--frame-c) 40%, #000),
+              0 var(--slab) 0 calc(var(--frame) + 1px) rgba(0, 0, 0, .6),
+              0 calc(var(--frame) + var(--slab) + 4px) 16px 2px rgba(0, 0, 0, .45);
+}
+.gm-tools { display: flex; gap: var(--space-2); justify-content: center; flex-wrap: wrap; padding: 0 var(--space-3); }
+.gm-tool { min-height: 40px; padding: 0 var(--space-3); }
+.gm-tool[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.gm-ink span { display: block; width: 18px; height: 18px; border-radius: 50%; background: #E0763B; box-shadow: 0 0 0 2px rgba(255,255,255,.6); }
+.gm-ink[data-ink="1"] span { background: #3FA34D; } .gm-ink[data-ink="2"] span { background: #3D7FD6; } .gm-ink[data-ink="3"] span { background: #D64834; }
+@media (orientation: landscape) and (max-height: 560px) {   /* 1.10.0: the raised board sideways keeps the board's own height rule (above), less its frame and side */
+  :root[data-raised] .gm .bd { width: min(calc(100dvh - 2 * var(--space-2) - 2 * var(--frame) - var(--slab) - 18px), 60vw); margin: calc(var(--frame) + 2px) calc(var(--frame) + 2px) calc(var(--frame) + var(--slab) + 8px); }
+  .gm-tools { justify-content: flex-start; }
+}
+/* 1.11.0 — the 3D board (js/board3d.js) over the flat one, which keeps the rules and comes back if 3D is lost */
+.bd-3d { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; touch-action: none; display: block; }
+.bd[data-3d] .bd-grid, .bd[data-3d] .bd-marks { visibility: hidden; }
+:root[data-raised] .bd[data-3d] { margin-bottom: calc(var(--frame) + 2px); }
+.bd-promo { z-index: 6; }
+/* 1.12.0 — the review: the sharpness strip, What if / Illusion, the Illusion window (Iron Ledger v8.10, v8.00, v8.13) */
+.rv-sharp { padding: 0 var(--space-3); }
+.sh-cells { display: flex; gap: 2px; overflow-x: auto; padding: 4px 0; }
+.sh { flex: 0 0 auto; width: 14px; height: 22px; border: 0; padding: 0; border-radius: 3px; font-size: 11px; line-height: 22px; color: #fff; display: inline-block; vertical-align: middle; }
+.sh-calm { background: rgba(107, 208, 138, .45); } .sh-sharp { background: #E0A23B; } .sh-only { background: #D64834; } .sh-none { background: rgba(255, 255, 255, .12); }
+.sh-mine { box-shadow: inset 0 -3px 0 rgba(255, 255, 255, .7); }
+.sh-key { white-space: nowrap; } .sh-key .sh { width: 10px; height: 10px; margin: 0 3px 0 8px; }
+.rv-acts { display: flex; gap: var(--space-2); flex-wrap: wrap; padding: 0 var(--space-3); }
+.rv-ill .ill { display: block; } .ill-h { font-size: 14px; margin: var(--space-2) 0 4px; }
+.ill-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.ill-row { width: 100%; text-align: left; display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; padding: 8px 10px; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--surface); color: inherit; }
+.ill-row i { margin-left: auto; font-style: normal; font-weight: 700; }
+.ill-holds i { color: #6BD08A; } .ill-no i, .ill-real b { color: #E0763B; }
+.ill-title { margin: 4px 0 0; }   /* the move in its own case (the overline above is in capitals: 2.BB5 was misread) */
+/* 1.13.0 — Train: Blindfold hides the pieces (flat and 3D) until Peek or the end; the move box */
+.bl-board:not(.bl-shown) .bd-sq img, .bl-board:not(.bl-shown) canvas.bd-3d, .bl-board:not(.bl-shown) .bd-marks { visibility: hidden; }
+.bl-moves { display: flex; flex-wrap: wrap; gap: 4px 16px; list-style: none; padding: 0; margin: var(--space-2) 0; }
+.bl-moves b { color: var(--gold); font-weight: 600; }
+.bl .bd, :root[data-raised] .bl .bd { width: min(calc(100% - 2 * var(--frame) - 6px), 640px, calc(100dvh - 300px)); }   /* inside the page's padding */
+.bl-form { display: flex; gap: var(--space-2); margin: var(--space-2) 0; }
+.bl-form input { flex: 1; min-width: 0; min-height: 48px; font-size: 18px; padding: 0 12px; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--surface); color: inherit; }
+/* 1.14.0 — the playstyle card (Iron Ledger's Profile → Your playstyle) */
+.ps-side { margin-bottom: var(--space-2); }
+.ps-streak { font-size: .55em; opacity: .8; }
+.ps-bars { list-style: none; padding: 0; margin: var(--space-2) 0; display: grid; gap: 6px; }
+.ps-bar { display: grid; grid-template-columns: 9em 1fr 3em; align-items: center; gap: 8px; }
+.ps-track { position: relative; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, .1); }
+.ps-track::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(255, 255, 255, .5); }
+.ps-track i { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
+.ps-up { background: #6BD08A; } .ps-down { background: #E0763B; }
+.ps-num { text-align: right; font-variant-numeric: tabular-nums; }
+.ps-h { font-size: 15px; margin: var(--space-3) 0 4px; }
+.ps-list li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; }
+.ps-list li .ilc-card__line { grid-column: 1 / -1; }
+.ps-fig { font-weight: 700; }

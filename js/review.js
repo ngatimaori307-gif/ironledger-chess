@@ -68,9 +68,15 @@ export function scoreGame(pgn, evals) {
     const recapture = !!(mv.captured && i > 0 && moves[i - 1].captured && moves[i - 1].to === mv.to);
     const second = evals[i].second, great = best && second != null && !recapture && before < REVIEW.greatWon && after - winChance(sign * second) >= REVIEW.greatGap;
     const lbl = label(drop, best);
+    /* 1.12.0, Iron Ledger's sharpness (sharpness.py): the win-chance gap between the best and the next-best move, the mover's side;
+       both a mate the same way = no gap. An "only move" from REVIEW.sharpOnly, sharp from REVIEW.sharpTense, else calm. */
+    let gap = null;
+    if (second != null) { const b = evals[i].cp, mates = Math.abs(b) >= MATE && Math.abs(second) >= MATE && (b > 0) === (second > 0);
+      gap = mates ? 0 : Math.round(Math.max(0, winChance(sign * b) - winChance(sign * second)) * 10) / 10; }
     out.push({ ply: i + 1, san: mv.san, uci: mv.from + mv.to + (mv.promotion || ""), color: mv.color === "w" ? "white" : "black", best: evals[i].best, bestUci: evals[i].bestUci,
       cpAfter: evals[i + 1].cp, drop: Math.round(drop * 10) / 10, accuracy: Math.round(moveAccuracy(before, after) * 10) / 10, label: lbl,
-      quality: quality(lbl, drop, before, after, great), ...(great ? { great: true, second: evals[i].secondSan } : {}) });
+      quality: quality(lbl, drop, before, after, great), ...(great ? { great: true, second: evals[i].secondSan } : {}),
+      cpBefore: evals[i].cp, ...(gap != null ? { gap, sharp: sharpKind(gap) } : {}) });
   }
   { const r = new Chess(); out.forEach((m, i) => { m.fen = r.fen(); r.move(moves[i].san); }); }   // the position before each move (for the review)
   for (let k = 1; k < out.length; k++) {                   // his blunder, then not punished
@@ -84,6 +90,10 @@ export function scoreGame(pgn, evals) {
   }
   return { moves: out, sides };
 }
+
+export const sharpKind = (gap) => (gap == null ? null : gap >= REVIEW.sharpOnly ? "only" : gap >= REVIEW.sharpTense ? "sharp" : "calm");
+/* his record in this game's only-move positions: found = the engine's first choice */
+export function onlyMoves(rep, col) { const ms = rep.moves.filter((m) => m.color === col && m.sharp === "only"); return { n: ms.length, found: ms.filter((m) => m.uci === m.bestUci).length }; }
 
 /* the review between Hardcore rungs (hardcore.moments): his moves that gave up 10+ win chance, the worst first — the turning point,
    his blunders let go, then the biggest slips — up to three, in game order */

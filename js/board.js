@@ -7,9 +7,12 @@
 import { ANIM_MS, MOTION } from "./config.js";
 import { settings } from "./store.js";
 import { pieceSrc } from "./looks.js";
+import * as A from "./arrows.js";
+import { pairs as tensionPairs, TENSION } from "./tension.js";
 
 const FILES = "abcdefgh";
 const PROMO = ["q", "r", "b", "n"];
+const ARROW_W = 0.15;                                      // your arrows' width, in squares (Iron Ledger's usr arrows)
 let lastDropped = null;                                   // a move dropped by hand settles where it lands (no slide back)
 const NAMES = { k: "king", q: "queen", r: "rook", b: "bishop", n: "knight", p: "pawn" };
 let fxMod = null;
@@ -22,6 +25,38 @@ export function createBoard(host, { onMove, canMove }) {
   host.innerHTML = "";
   const grid = document.createElement("div"); grid.className = "bd-grid"; host.append(grid);
   const promo = document.createElement("div"); promo.className = "bd-promo"; promo.hidden = true; host.append(promo);
+  /* 1.10.0 (Iron Ledger's ✎ Draw and ◫ layers): a picture layer over the squares — your arrows and circles, kept per position
+     while the game is open, and the Tension threads. It never takes a tap: the squares underneath still do. */
+  const marks = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  marks.setAttribute("class", "bd-marks"); marks.setAttribute("viewBox", "0 0 8 8"); marks.setAttribute("aria-hidden", "true"); host.append(marks);
+  const notes = new Map();                                        // position → { arrows: ["e2e4", "g1f3~2"], circles: ["e4~1"] }
+  let drawing = false, ink = 0, drawFrom = null;
+  /* 1.11.0: the 3D view (js/board3d.js, loaded only when chosen). It draws what this board holds; its taps come back here. */
+  let view3d = null, slide = null, now = { targets: new Set(), checkSq: null };
+  function start3d() {
+    if (view3d || settings.boardView !== "3d") return;
+    import("./board3d.js").then((m) => {
+      if (view3d || settings.boardView !== "3d" || !host.isConnected) return;
+      view3d = m.create3d(host, {
+        onDown: (sq) => { if (drawing) drawFrom = sq; },
+        onSquare: (from, to) => {
+          if (drawing) { drawFrom = null; if (to) mark(from, to); return; }
+          if (!to || locked || !chess || !canMove()) return;
+          if (from === to) { tap(to); return; }
+          const p = chess.get(from); if (p && p.color === chess.turn()) { picked = from; tap(to); }   // a drag on the 3D board
+        },
+      });
+      if (!view3d) { host.dataset.no3d = "1"; return; }                 // no 3D graphics on this phone: the flat board stays
+      host.setAttribute("data-3d", "");
+      view3d.onLost = () => { const v = view3d; view3d = null; host.removeAttribute("data-3d"); host.dataset.no3d = "lost"; v.destroy(); if (chess) draw(); };
+      if (chess) draw();
+    }).catch(() => { host.dataset.no3d = "1"; });
+  }
+  function sync3d() {
+    if (!view3d || !chess) return;
+    const occupied = new Set(); chess.board().forEach((row) => row.forEach((p) => { if (p) occupied.add(p.square); }));
+    view3d.update({ board: chess.board(), last, picked, targets: now.targets, occupied, checkSq: now.checkSq, flipped, moved: slide, marks: marks.innerHTML });
+  }
   const squares = {}, shown = new Map();                          // square → its button; button → the markup it shows
   for (let i = 0; i < 64; i++) { const b = document.createElement("button"); b.type = "button"; b.className = "bd-sq"; grid.append(b); }
   function order() { const out = []; for (let r = 7; r >= 0; r--) for (let f = 0; f < 8; f++) out.push(FILES[f] + (r + 1)); return flipped ? out.reverse() : out; }
@@ -29,6 +64,7 @@ export function createBoard(host, { onMove, canMove }) {
   function draw() {
     const sqs = order(), targets = picked ? new Set(chess.moves({ square: picked, verbose: true }).map((m) => m.to)) : new Set();
     const checkSq = chess.inCheck() ? sqs.find((s) => { const p = chess.get(s); return p && p.type === "k" && p.color === chess.turn(); }) : null;
+    now = { targets, checkSq };
     [...grid.children].forEach((b, i) => {
       const s = sqs[i], p = chess.get(s), fi = FILES.indexOf(s[0]), ri = Number(s[1]) - 1;
       b.dataset.sq = s; squares[s] = b;
@@ -40,11 +76,49 @@ export function createBoard(host, { onMove, canMove }) {
       if (shown.get(b) !== html) { b.innerHTML = html; shown.set(b, html); }   // only the squares that changed
       b.setAttribute("aria-label", `${s}${p ? " " + (p.color === "w" ? "white " : "black ") + NAMES[p.type] : ""}`);
     });
+    paintMarks();
+  }
+  const posKey = () => chess.fen().split(" ").slice(0, 4).join(" ");
+  const note = () => { const k = posKey(); if (!notes.has(k)) notes.set(k, { arrows: [], circles: [] }); return notes.get(k); };
+  function xy(s) { const f = FILES.indexOf(s[0]), r = Number(s[1]) - 1; return flipped ? [7 - f + 0.5, r + 0.5] : [f + 0.5, 7 - r + 0.5]; }
+  function knightCorner(a, b) { const dx = Math.abs(b[0] - a[0]), dy = Math.abs(b[1] - a[1]); return (dx === 1 && dy === 2) || (dx === 2 && dy === 1) ? (dx > dy ? [b[0], a[1]] : [a[0], b[1]]) : null; }
+  function arrow(from, to, cls) { const a = xy(from), b = xy(to); return A.svg(a[0], a[1], b[0], b[1], cls, ARROW_W, knightCorner(a, b)); }
+  const number = (sq, n, cls) => { const [x, y] = xy(sq); return `<circle cx="${x + 0.3}" cy="${y - 0.3}" r="0.17" class="${cls}-dot"/><text x="${x + 0.3}" y="${y - 0.3}" class="bd-num">${n}</text>`; };
+  function thread(from, to, loses) {                              // a Tension thread: a bent line with a small head, white and trembling when lost
+    const a = xy(from), b = xy(to), dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+    const cx = (a[0] + b[0]) / 2 - (dy / len) * TENSION.bend * len * 0.5, cy = (a[1] + b[1]) / 2 + (dx / len) * TENSION.bend * len * 0.5;
+    const w = loses ? TENSION.wLosing + TENSION.wPerPawn * Math.min(loses, 9) : TENSION.wSafe, col = loses ? TENSION.losing : TENSION.safe;
+    const ex = b[0] - cx, ey = b[1] - cy, el = Math.hypot(ex, ey) || 1, ux = ex / el, uy = ey / el, h = 0.16 + w, bx = b[0] - ux * 0.3, by = b[1] - uy * 0.3;
+    const head = `M${(bx + ux * h).toFixed(3)},${(by + uy * h).toFixed(3)}L${(bx - uy * h * 0.6).toFixed(3)},${(by + ux * h * 0.6).toFixed(3)}L${(bx + uy * h * 0.6).toFixed(3)},${(by - ux * h * 0.6).toFixed(3)}Z`;
+    const j = loses ? Math.min(TENSION.jitterMax, TENSION.jitterPerPawn * loses) : 0;
+    return `<g class="bd-thread${j ? " bd-tremble" : ""}" style="--j:${j}"><path d="M${a[0]},${a[1]}Q${cx.toFixed(3)},${cy.toFixed(3)} ${bx.toFixed(3)},${by.toFixed(3)}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/><path d="${head}" fill="${col}"/></g>`;
+  }
+  function paintMarks() {
+    if (!chess) { marks.innerHTML = ""; return; }
+    let out = "";
+    if (settings.layerTension) {
+      const ps = tensionPairs(chess), lost = new Set();
+      for (const [a, t, l] of ps) { out += thread(a, t, l); if (l) lost.add(t); }
+      for (const t of lost) { const [x, y] = xy(t); out += `<circle class="bd-lost" cx="${x}" cy="${y}" r="${TENSION.ringR}" fill="none" stroke="${TENSION.losing}" stroke-width="0.05"/>`; }
+    }
+    const n = notes.get(posKey());
+    if (n) {
+      for (const c of n.circles) { const [x, y] = xy(c.slice(0, 2)); out += `<circle class="${A.kind(c)}-ring" cx="${x}" cy="${y}" r="0.44" fill="none" stroke-width="0.07"/>`; }
+      out += A.mine(n.arrows, arrow, number);
+    }
+    marks.innerHTML = out;
+    sync3d();
+  }
+  function mark(from, to) {                                       // a tap circles a square; a drag draws an arrow; the same again removes it, another ink recolours it
+    const n = note(), id = (to === from ? from : from + to), tag = id + (ink ? "~" + ink : ""), list = to === from ? n.circles : n.arrows;
+    const i = list.findIndex((x) => x.split("~")[0] === id);
+    if (i >= 0) { const same = list[i] === tag; list.splice(i, 1); if (!same) list.push(tag); } else list.push(tag);
+    paintMarks();
   }
   function centre(s) { const r = squares[s].getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width]; }
   /* The move just made, slid from where it came from; what it took goes with an effect. */
   function animate(mv, prev) {
-    if (calm() || !mv) return;
+    if (calm() || !mv || view3d) return;                            // the 3D view slides its own pieces
     const img = squares[mv.to] && squares[mv.to].querySelector("img"); if (!img || !img.animate) return;
     const [fx0, fy0] = centre(mv.from), [tx, ty] = centre(mv.to), dx = fx0 - tx, dy = fy0 - ty, ms = MOTION.moveMs, slide = !mv.dropped;
     let frames;
@@ -90,6 +164,7 @@ export function createBoard(host, { onMove, canMove }) {
     if (s !== drag.over) { if (drag.over) squares[drag.over].classList.remove("bd-over"); drag.over = s; if (s) squares[s].classList.add("bd-over"); }
   }
   grid.addEventListener("pointerdown", (e) => {
+    if (drawing) { const b = e.target.closest(".bd-sq"); if (b && chess) { drawFrom = b.dataset.sq; grid.setPointerCapture(e.pointerId); } return; }
     const b = e.target.closest(".bd-sq"); if (!b || locked || !chess || !canMove()) return;
     const p = chess.get(b.dataset.sq);
     drag = { from: b.dataset.sq, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, mine: !!(p && p.color === chess.turn()), on: false, pointer: e.pointerType };
@@ -116,19 +191,28 @@ export function createBoard(host, { onMove, canMove }) {
     const to = cancel ? null : at(e.clientX, e.clientY);
     if (to && to !== d.from) { picked = d.from; dropped = true; tap(to); dropped = false; } else { picked = null; draw(); }
   };
-  grid.addEventListener("pointerup", (e) => endDrag(e, false));
-  grid.addEventListener("pointercancel", (e) => endDrag(e, true));
-  grid.addEventListener("click", (e) => { if (e.detail === 0) { const b = e.target.closest(".bd-sq"); if (b) tap(b.dataset.sq); } });   // the keyboard's Enter / Space
+  grid.addEventListener("pointerup", (e) => {
+    if (drawFrom) { const from = drawFrom, to = at(e.clientX, e.clientY); drawFrom = null; if (to) mark(from, to); return; }
+    endDrag(e, false);
+  });
+  grid.addEventListener("pointercancel", (e) => { drawFrom = null; endDrag(e, true); });
+  grid.addEventListener("click", (e) => { if (e.detail === 0 && !drawing) { const b = e.target.closest(".bd-sq"); if (b) tap(b.dataset.sq); } });   // the keyboard's Enter / Space
   return {
     set(c, { lastMove = null, flip = flipped } = {}) {
       const moved = lastMove && before && last !== lastMove && c.history().length === before.n + 1;
       const prev = moved ? before : null;
-      chess = c; last = lastMove; flipped = flip; picked = null; draw();
+      chess = c; last = lastMove; flipped = flip; picked = null; slide = moved ? lastMove : null; draw(); slide = null; start3d();
       if (moved) animate({ ...lastMove, dropped: lastMove.from === lastDropped }, prev);
       const snap = {}; c.board().forEach((row) => row.forEach((p) => { if (p) snap[p.square] = p; }));
       before = { n: c.history().length, get: (s) => snap[s] || null };   // what stood where, for the next move's capture effect
     },
     lock(on) { locked = on; host.toggleAttribute("data-locked", on); },
+    draw(on) { drawing = !!on; drawFrom = null; host.toggleAttribute("data-drawing", drawing); if (drawing) { picked = null; if (chess) draw(); } return drawing; },
+    ink(k) { if (k != null) ink = ((k % A.INKS) + A.INKS) % A.INKS; return ink; },
+    clearMarks() { if (chess) notes.delete(posKey()); paintMarks(); },
+    marks() { const n = chess && notes.get(posKey()); return n ? { arrows: [...n.arrows], circles: [...n.circles] } : { arrows: [], circles: [] }; },
+    layers() { paintMarks(); },
+    view3d() { return view3d ? "3d" : host.dataset.no3d ? "flat (" + host.dataset.no3d + ")" : "flat"; },
     flash(sq) { const b = squares[sq]; if (!b) return; b.classList.add("bd-flash"); setTimeout(() => b.classList.remove("bd-flash"), ANIM_MS * 3); },
   };
 }
