@@ -31,6 +31,32 @@ export function createBoard(host, { onMove, canMove }) {
   marks.setAttribute("class", "bd-marks"); marks.setAttribute("viewBox", "0 0 8 8"); marks.setAttribute("aria-hidden", "true"); host.append(marks);
   const notes = new Map();                                        // position → { arrows: ["e2e4", "g1f3~2"], circles: ["e4~1"] }
   let drawing = false, ink = 0, drawFrom = null;
+  /* 1.11.0: the 3D view (js/board3d.js, loaded only when chosen). It draws what this board holds; its taps come back here. */
+  let view3d = null, slide = null, now = { targets: new Set(), checkSq: null };
+  function start3d() {
+    if (view3d || settings.boardView !== "3d") return;
+    import("./board3d.js").then((m) => {
+      if (view3d || settings.boardView !== "3d" || !host.isConnected) return;
+      view3d = m.create3d(host, {
+        onDown: (sq) => { if (drawing) drawFrom = sq; },
+        onSquare: (from, to) => {
+          if (drawing) { drawFrom = null; if (to) mark(from, to); return; }
+          if (!to || locked || !chess || !canMove()) return;
+          if (from === to) { tap(to); return; }
+          const p = chess.get(from); if (p && p.color === chess.turn()) { picked = from; tap(to); }   // a drag on the 3D board
+        },
+      });
+      if (!view3d) { host.dataset.no3d = "1"; return; }                 // no 3D graphics on this phone: the flat board stays
+      host.setAttribute("data-3d", "");
+      view3d.onLost = () => { const v = view3d; view3d = null; host.removeAttribute("data-3d"); host.dataset.no3d = "lost"; v.destroy(); if (chess) draw(); };
+      if (chess) draw();
+    }).catch(() => { host.dataset.no3d = "1"; });
+  }
+  function sync3d() {
+    if (!view3d || !chess) return;
+    const occupied = new Set(); chess.board().forEach((row) => row.forEach((p) => { if (p) occupied.add(p.square); }));
+    view3d.update({ board: chess.board(), last, picked, targets: now.targets, occupied, checkSq: now.checkSq, flipped, moved: slide, marks: marks.innerHTML });
+  }
   const squares = {}, shown = new Map();                          // square → its button; button → the markup it shows
   for (let i = 0; i < 64; i++) { const b = document.createElement("button"); b.type = "button"; b.className = "bd-sq"; grid.append(b); }
   function order() { const out = []; for (let r = 7; r >= 0; r--) for (let f = 0; f < 8; f++) out.push(FILES[f] + (r + 1)); return flipped ? out.reverse() : out; }
@@ -38,6 +64,7 @@ export function createBoard(host, { onMove, canMove }) {
   function draw() {
     const sqs = order(), targets = picked ? new Set(chess.moves({ square: picked, verbose: true }).map((m) => m.to)) : new Set();
     const checkSq = chess.inCheck() ? sqs.find((s) => { const p = chess.get(s); return p && p.type === "k" && p.color === chess.turn(); }) : null;
+    now = { targets, checkSq };
     [...grid.children].forEach((b, i) => {
       const s = sqs[i], p = chess.get(s), fi = FILES.indexOf(s[0]), ri = Number(s[1]) - 1;
       b.dataset.sq = s; squares[s] = b;
@@ -80,6 +107,7 @@ export function createBoard(host, { onMove, canMove }) {
       out += A.mine(n.arrows, arrow, number);
     }
     marks.innerHTML = out;
+    sync3d();
   }
   function mark(from, to) {                                       // a tap circles a square; a drag draws an arrow; the same again removes it, another ink recolours it
     const n = note(), id = (to === from ? from : from + to), tag = id + (ink ? "~" + ink : ""), list = to === from ? n.circles : n.arrows;
@@ -90,7 +118,7 @@ export function createBoard(host, { onMove, canMove }) {
   function centre(s) { const r = squares[s].getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width]; }
   /* The move just made, slid from where it came from; what it took goes with an effect. */
   function animate(mv, prev) {
-    if (calm() || !mv) return;
+    if (calm() || !mv || view3d) return;                            // the 3D view slides its own pieces
     const img = squares[mv.to] && squares[mv.to].querySelector("img"); if (!img || !img.animate) return;
     const [fx0, fy0] = centre(mv.from), [tx, ty] = centre(mv.to), dx = fx0 - tx, dy = fy0 - ty, ms = MOTION.moveMs, slide = !mv.dropped;
     let frames;
@@ -173,7 +201,7 @@ export function createBoard(host, { onMove, canMove }) {
     set(c, { lastMove = null, flip = flipped } = {}) {
       const moved = lastMove && before && last !== lastMove && c.history().length === before.n + 1;
       const prev = moved ? before : null;
-      chess = c; last = lastMove; flipped = flip; picked = null; draw();
+      chess = c; last = lastMove; flipped = flip; picked = null; slide = moved ? lastMove : null; draw(); slide = null; start3d();
       if (moved) animate({ ...lastMove, dropped: lastMove.from === lastDropped }, prev);
       const snap = {}; c.board().forEach((row) => row.forEach((p) => { if (p) snap[p.square] = p; }));
       before = { n: c.history().length, get: (s) => snap[s] || null };   // what stood where, for the next move's capture effect
@@ -184,6 +212,7 @@ export function createBoard(host, { onMove, canMove }) {
     clearMarks() { if (chess) notes.delete(posKey()); paintMarks(); },
     marks() { const n = chess && notes.get(posKey()); return n ? { arrows: [...n.arrows], circles: [...n.circles] } : { arrows: [], circles: [] }; },
     layers() { paintMarks(); },
+    view3d() { return view3d ? "3d" : host.dataset.no3d ? "flat (" + host.dataset.no3d + ")" : "flat"; },
     flash(sq) { const b = squares[sq]; if (!b) return; b.classList.add("bd-flash"); setTimeout(() => b.classList.remove("bd-flash"), ANIM_MS * 3); },
   };
 }

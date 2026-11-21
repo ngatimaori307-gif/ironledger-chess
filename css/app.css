@@ -237,3 +237,8 @@ html[data-boardpic] :is(.bd-l, .bd-d) { background: transparent; }
   :root[data-raised] .gm .bd { width: min(calc(100dvh - 2 * var(--space-2) - 2 * var(--frame) - var(--slab) - 18px), 60vw); margin: calc(var(--frame) + 2px) calc(var(--frame) + 2px) calc(var(--frame) + var(--slab) + 8px); }
   .gm-tools { justify-content: flex-start; }
 }
+/* 1.11.0 — the 3D board (js/board3d.js) over the flat one, which keeps the rules and comes back if 3D is lost */
+.bd-3d { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; touch-action: none; display: block; }
+.bd[data-3d] .bd-grid, .bd[data-3d] .bd-marks { visibility: hidden; }
+:root[data-raised] .bd[data-3d] { margin-bottom: calc(var(--frame) + 2px); }
+.bd-promo { z-index: 6; }

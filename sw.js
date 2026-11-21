@@ -1,5 +1,5 @@
 /* Offline copy of Iron Ledger Chess (written by tools/build_sw.py — don't edit by hand). */
-const CACHE = "ilc-b3be12d11e37";
+const CACHE = "ilc-cd6c3034b746";
 const FILES = [
 "./",
 "index.html",
@@ -13,6 +13,7 @@ const FILES = [
 "js/app.js",
 "js/arrows.js",
 "js/board.js",
+"js/board3d.js",
 "js/capturefx.js",
 "js/config.js",
 "js/engine.js",
@@ -59,7 +60,7 @@ self.addEventListener("activate", (e) => e.waitUntil(caches.keys().then((ks) => 
 self.addEventListener("fetch", (e) => {
   const u = new URL(e.request.url);
   if (e.request.method !== "GET") return;
-  if (u.origin === location.origin && ["/vendor/maia/", "/vendor/maia3/", "/vendor/lichess/", "/vendor/sounds/"].some((d) => u.pathname.includes(d)))
+  if (u.origin === location.origin && ["/vendor/maia/", "/vendor/maia3/", "/vendor/lichess/", "/vendor/sounds/", "/vendor/three/"].some((d) => u.pathname.includes(d)))
     e.respondWith(caches.open(CACHE).then((c) => c.match(e.request).then((r) => r || fetch(e.request).then((n) => { if (n.ok) c.put(e.request, n.clone()); return n; }))));
   else if (u.origin === location.origin) e.respondWith(caches.match(e.request, { ignoreSearch: true }).then((r) => r || fetch(e.request)));
   else if (u.host.endsWith("fonts.googleapis.com") || u.host.endsWith("fonts.gstatic.com"))
