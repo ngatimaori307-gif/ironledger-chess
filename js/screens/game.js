@@ -1,5 +1,6 @@
 /* A game against the computer (from Play the Computer, The Ladder, the Hardcore ladders or Carry On). */
-import { current, setCurrent } from "../store.js";
+import { current, setCurrent, settings, saveSettings } from "../store.js";
+import { rematchColor, SWAP } from "./ui.js";
 import { newMatch, computerReply, opponent, persist, myTurn, finish } from "../match.js";
 import { drawOffer } from "../guard.js";
 import { mountGame } from "./gameview.js";
@@ -24,12 +25,15 @@ export function render(v) {
       toast("Offering a draw…"); const r = await drawOffer(m.chess.fen(), m.moves.length);
       if (m.result) return; toast(r.why); if (r.accepted) finish(m, "1/2-1/2", "draw agreed");
     } } : {}),
-    again: () => { setCurrent({ ...saved, me: m.me === "w" ? "b" : "w", moves: [], startedAt: Date.now() }); render(v); },
+    againPick: () => settings.rematchColor || "s", againExtra: [SWAP],      // 1.9.0: the rematch's colour is his to pick (Swap, as before, unless he changes it)
+    again: (pick = "s") => { settings.rematchColor = pick; saveSettings(); setCurrent({ ...saved, me: rematchColor(pick, m.me), moves: [], startedAt: Date.now() }); render(v); },
   });
-  if (o.m3 || o.guard) { maia3.warm(); maia3.onReady(() => ui.redraw()); }     // the download starts while he thinks about his first move
-  async function reply() { if (thinking) return; thinking = true; try { await computerReply(m); } finally { thinking = false; ui.redraw(); } }
+  v._game = m;                                        // 1.9.0: the game this screen shows now; an older game's late answer leaves it alone
+  const live = () => v._game === m;
+  if (o.m3 || o.guard) { maia3.warm(); maia3.onReady(() => { if (live()) ui.redraw(); }); }     // the download starts while he thinks about his first move
+  async function reply() { if (thinking) return; thinking = true; try { await computerReply(m); } finally { thinking = false; if (live()) ui.redraw(); } }
   persist(m);
   reply();                                            // the computer opens when you play Black, or carries on after a reload
   let retried = 0;
-  m.listeners.push((kind) => { if (kind !== "error") return; if (retried++ < ENGINE.retries) { toast("The engine is slow to answer — trying again"); setTimeout(reply, ENGINE.retryAfterMs); } else toast("The engine isn't answering on this phone. Close the app and open it again."); });
+  m.listeners.push((kind) => { if (kind !== "error") return; if (retried++ < ENGINE.retries) { toast("The engine is slow to answer — trying again"); setTimeout(() => { if (live()) reply(); }, ENGINE.retryAfterMs); } else toast("The engine isn't answering on this phone. Close the app and open it again."); });
 }
