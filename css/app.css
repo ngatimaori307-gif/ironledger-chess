@@ -263,3 +263,17 @@ html[data-boardpic] :is(.bd-l, .bd-d) { background: transparent; }
 .bl .bd, :root[data-raised] .bl .bd { width: min(calc(100% - 2 * var(--frame) - 6px), 640px, calc(100dvh - 300px)); }   /* inside the page's padding */
 .bl-form { display: flex; gap: var(--space-2); margin: var(--space-2) 0; }
 .bl-form input { flex: 1; min-width: 0; min-height: 48px; font-size: 18px; padding: 0 12px; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--surface); color: inherit; }
+/* 1.14.0 — the playstyle card (Iron Ledger's Profile → Your playstyle) */
+.ps-side { margin-bottom: var(--space-2); }
+.ps-streak { font-size: .55em; opacity: .8; }
+.ps-bars { list-style: none; padding: 0; margin: var(--space-2) 0; display: grid; gap: 6px; }
+.ps-bar { display: grid; grid-template-columns: 9em 1fr 3em; align-items: center; gap: 8px; }
+.ps-track { position: relative; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, .1); }
+.ps-track::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(255, 255, 255, .5); }
+.ps-track i { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
+.ps-up { background: #6BD08A; } .ps-down { background: #E0763B; }
+.ps-num { text-align: right; font-variant-numeric: tabular-nums; }
+.ps-h { font-size: 15px; margin: var(--space-3) 0 4px; }
+.ps-list li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; }
+.ps-list li .ilc-card__line { grid-column: 1 / -1; }
+.ps-fig { font-weight: 700; }

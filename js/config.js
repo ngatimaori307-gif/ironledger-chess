@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.13.0", build: "2026-11-21" };
+export const APP = { name: "Iron Ledger Chess", version: "1.14.0", build: "2026-11-21" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -76,6 +76,10 @@ export const REVIEW = { levels: { quick: [12, 0.3], normal: [15, 0.8] }, multipv
   sharpOnly: 20, sharpTense: 8 };                          // 1.12.0: Iron Ledger's sharpness (config SHARP_ONLY, SHARP_TENSE)
 /* 1.12.0: the Illusion window, Iron Ledger's numbers (config ILLUSION_*): the replies Maia-3 gives at least minP, the top `replies`,
    each judged by Stockfish to `depth`; it "holds" when his chance stays within `hold` points of before his move. */
+/* 1.14.0: the playstyle — Iron Ledger's numbers (config STYLE_*, PROFILE_MIN_PLIES, report OPENING_PLIES / ENDGAME_MATERIAL, robust ROBUST_*) */
+export const STYLE = { minGames: 10, minEvents: 5, earlyMoves: 15, queenEarlyMoves: 5, queensOffMove: 25, winningWc: 75, diffShown: 0.15,
+  uniqueShown: 4, strengthsShown: 3, openingMin: 5, clip: 1.0, minPlies: 10, openingPlies: 24, endgameMaterial: 26,
+  trim: 0.2, permRuns: 1000, permSeed: 1966, p: 0.05 };
 /* 1.13.0: Train — Iron Ledger's numbers (puzzles.py ALT_WIN_DROP 5, CHECK_LIMIT depth 14 / 1 s; a session of 10 puzzles) */
 export const TRAIN = { session: 10, altDrop: 5, depth: 14, ms: 1000, peekMs: 3000 };
 export const ILLUSION = { replies: 6, minP: 0.05, depth: 14, ms: 2500, hold: 5, kept: 200, rating: [1100, 2500] };            // the review between Hardcore rungs
