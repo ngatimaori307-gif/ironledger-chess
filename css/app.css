@@ -242,3 +242,17 @@ html[data-boardpic] :is(.bd-l, .bd-d) { background: transparent; }
 .bd[data-3d] .bd-grid, .bd[data-3d] .bd-marks { visibility: hidden; }
 :root[data-raised] .bd[data-3d] { margin-bottom: calc(var(--frame) + 2px); }
 .bd-promo { z-index: 6; }
+/* 1.12.0 — the review: the sharpness strip, What if / Illusion, the Illusion window (Iron Ledger v8.10, v8.00, v8.13) */
+.rv-sharp { padding: 0 var(--space-3); }
+.sh-cells { display: flex; gap: 2px; overflow-x: auto; padding: 4px 0; }
+.sh { flex: 0 0 auto; width: 14px; height: 22px; border: 0; padding: 0; border-radius: 3px; font-size: 11px; line-height: 22px; color: #fff; display: inline-block; vertical-align: middle; }
+.sh-calm { background: rgba(107, 208, 138, .45); } .sh-sharp { background: #E0A23B; } .sh-only { background: #D64834; } .sh-none { background: rgba(255, 255, 255, .12); }
+.sh-mine { box-shadow: inset 0 -3px 0 rgba(255, 255, 255, .7); }
+.sh-key { white-space: nowrap; } .sh-key .sh { width: 10px; height: 10px; margin: 0 3px 0 8px; }
+.rv-acts { display: flex; gap: var(--space-2); flex-wrap: wrap; padding: 0 var(--space-3); }
+.rv-ill .ill { display: block; } .ill-h { font-size: 14px; margin: var(--space-2) 0 4px; }
+.ill-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.ill-row { width: 100%; text-align: left; display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; padding: 8px 10px; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--surface); color: inherit; }
+.ill-row i { margin-left: auto; font-style: normal; font-weight: 700; }
+.ill-holds i { color: #6BD08A; } .ill-no i, .ill-real b { color: #E0763B; }
+.ill-title { margin: 4px 0 0; }   /* the move in its own case (the overline above is in capitals: 2.BB5 was misread) */
