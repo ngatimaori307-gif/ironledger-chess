@@ -6,8 +6,7 @@ import { profile } from "../rating.js";
 import { esc } from "./ui.js";
 import { evaluate, STYLES } from "../style.js";
 import { loadReport } from "../review.js";
-import { sentTo } from "../sendgames.js";
-import { friends } from "../presence.js";
+import { confirmedKeys, ntfyState } from "../sendgames.js";
 import { summary as eyesSummary, EYES } from "../eyes.js";
 
 const ORDER = ["m3", "guard", "maia", "styled", "sf", "weak", "friend", "other"];
@@ -43,11 +42,10 @@ export function render(v) {
   const nm = v.querySelector("#pf-name");
   nm.onchange = () => { settings.name = nm.value.trim(); saveSettings(); };
 }
-/* 1.17.0: what has gone to a friend's Iron Ledger by itself (js/sendgames.js), said plainly so he knows his games are sent */
+/* 1.17.0 / 1.18.0: what has gone to his son's Iron Ledger by itself (js/sendgames.js), said plainly so he knows his games are sent */
 function sentLine() {
-  const got = friends().map((f) => [f, sentTo(f.id)]).filter(([, x]) => x);
-  return `<p class="sub pf-sent">Your games go by themselves, with your name on them, to a friend's Iron Ledger when both apps are open${got.length
-    ? `: ${got.map(([f, x]) => `${x.games} to ${esc(f.name)}, the last ${esc(x.last)}`).join(" · ")}` : " (none yet)"}.</p>`;
+  const n = confirmedKeys().size, w = ntfyState().waiting;
+  return `<p class="sub pf-sent">Your games go by themselves, with your name on them, to your son's Iron Ledger: ${n} arrived${w ? `, ${w} on the way` : ""}.</p>`;
 }
 
 /* 1.14.0 — Iron Ledger's playstyle card (Profile → Your playstyle, v7.45): the style and its streak, the four scores as bars (0 in

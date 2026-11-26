@@ -1,5 +1,5 @@
 /* Iron Ledger Chess (player build) — every number and name the app uses, in one place. */
-export const APP = { name: "Iron Ledger Chess", version: "1.17.0", build: "2026-11-26" };
+export const APP = { name: "Iron Ledger Chess", version: "1.18.0", build: "2026-11-26" };
 
 /* The engine: Stockfish 19 (lite NNUE, one thread), run in a Web Worker so the board never waits for it. */
 export const ENGINE = {
@@ -99,6 +99,11 @@ export const FRIEND = {
   peer: { debug: 0, config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:global.stun.twilio.com:3478" }] } },
 };
 
+/* 1.18.0: every game to his son's Iron Ledger through ntfy.sh as well (free; the same service as the problem reports), so it arrives
+   even when the two apps are never open together. His app says which arrived on the second topic; anything not confirmed is posted
+   again after repostMs (ntfy.sh keeps a message about 12 hours). A game longer than partBytes goes in parts. */
+export const GAMES_NTFY = { base: "https://ntfy.sh", topic: "ilc-g-636e81db1527e9fa0c648ab5", ackTopic: "ilc-k-033fe3ce7a1a1fc25c1ecc44",
+  since: "12h", repostMs: 6 * 3600000, postsPerRun: 20, partBytes: 3500, maxParts: 20, key: "ilc-ntfy" };
 /* Problem reports: kept on the phone and always sent to the developer's ntfy topic (no switch: his word 17 Nov 00:14). Nothing personal is sent: the error, the screen, the device and browser, the app version. */
 export const LOG = {
   key: "ilc-log",
