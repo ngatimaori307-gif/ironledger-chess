@@ -5,6 +5,7 @@ import { play, finish, lastMove, myTurn, oppLabel } from "../match.js";
 import { esc, colorPicker } from "./ui.js";
 import { settings, saveSettings } from "../store.js";
 import { sound, checkBeat, heartStop, warm } from "../sound.js";
+import { ask as askEyes } from "../eyes.js";
 
 export function mountGame(v, m, side) {
   document.documentElement.setAttribute("data-board", "");             // the board takes the screen; the bottom bar comes back on the next screen
@@ -42,6 +43,7 @@ export function mountGame(v, m, side) {
       <div class="gm-again">${side.again && side.againPick ? `<div class="gm-again-pick"><span class="ilc-card__line">Rematch, you play</span>${colorPicker("ag", side.againPick(), side.againExtra || [])}</div>` : ""}${side.again ? `<button class="ilc-btn ilc-btn--primary" id="gm-again">${side.againPick ? "Rematch" : "Play again"}</button>` : ""}<a class="ilc-btn" href="${side.back || "#play"}">Done</a></div></div>`;
     v.querySelector("#gm-again")?.addEventListener("click", () => side.again(v.querySelector("input[name=ag]:checked")?.value));   // the colour he asks for (Play a Friend)
     v.querySelector("#gm-resign").hidden = true; const d = v.querySelector("#gm-draw"); if (d) d.hidden = true;
+    if (!el.dataset.eyes) { el.dataset.eyes = "1"; const q = document.createElement("div"); q.className = "eyes-ask"; el.append(q); askEyes(q, m.mode || "game"); }   // 1.15.0: once a game
   }
   warm();                                                            // the pieces' recording, before the first move
   v.querySelector("#gm-flip").onclick = () => { flip = !flip; redraw(); };

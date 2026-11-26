@@ -6,6 +6,9 @@ import { profile } from "../rating.js";
 import { esc } from "./ui.js";
 import { evaluate, STYLES } from "../style.js";
 import { loadReport } from "../review.js";
+import { shareAll } from "../share.js";
+import { toast } from "../app.js";
+import { summary as eyesSummary, EYES } from "../eyes.js";
 
 const ORDER = ["m3", "guard", "maia", "styled", "sf", "weak", "friend", "other"];
 export function render(v) {
@@ -27,14 +30,23 @@ export function render(v) {
     <div id="ps"></div>
     <h2 class="overline">Your record</h2>
     ${kinds ? `<ul class="games pf-kinds">${kinds}</ul>` : `<p class="sub">No finished games yet.</p>`}
+    <h2 class="overline">Eyes and glasses</h2>
+    ${eyesCard()}
     <h2 class="overline">Your games</h2>
-    ${all.length ? `<p class="sub">Tap a game to replay it or copy it as PGN. This phone keeps your last ${GAMES_KEPT}.</p><ul class="games">${all.map(row).join("")}</ul>` : ""}
+    ${all.length ? `<p class="sub">Tap a game to replay it or copy it as PGN. This phone keeps your last ${GAMES_KEPT}.</p>
+      <div class="row"><button class="ilc-btn" id="pf-share">Share all my games</button></div>
+      <p class="sub">One file of all ${all.length} games, with your name on them, for Iron Ledger. Nothing is sent unless you share it.</p>
+      <ul class="games">${all.map(row).join("")}</ul>` : ""}
   </section>`;
   const drawStyle = () => { v.querySelector("#ps").innerHTML = styleCard(evaluate(all, loadReport, settings.styleSide || null)); };
   v.querySelectorAll("input[name=ps-side]").forEach((r) => { r.onchange = () => { settings.styleSide = r.value; saveSettings(); drawStyle(); }; });
   drawStyle();
   const nm = v.querySelector("#pf-name");
   nm.onchange = () => { settings.name = nm.value.trim(); saveSettings(); };
+  v.querySelector("#pf-share")?.addEventListener("click", async () => {      // 1.15.0: his games for Iron Ledger's opponent book
+    if (!settings.name) { nm.focus(); toast("Type your name first, so your games carry it"); return; }
+    try { const how = await shareAll(all); toast(how === "shared" ? "Games shared" : "Games saved to Downloads"); } catch (e) { if (e && e.name !== "AbortError") toast("Couldn't share the games"); }
+  });
 }
 
 /* 1.14.0 — Iron Ledger's playstyle card (Profile → Your playstyle, v7.45): the style and its streak, the four scores as bars (0 in
@@ -56,4 +68,11 @@ function styleCard(st) {
     ${st.costs ? `<h3 class="ps-h">What costs you most</h3><ul class="games ps-list">${rows([st.costs])}</ul>` : ""}
     ${st.openings?.most?.length ? `<h3 class="ps-h">Your openings</h3><ul class="games ps-list">${st.openings.most.map((o) => `<li><span>${esc(o.first)} as ${o.col}</span><span class="ps-fig">${o.score} %</span><span class="ilc-card__line">${o.games} game${o.games === 1 ? "" : "s"}</span></li>`).join("")}</ul>` : ""}
     <p class="sub">The words are names for the sums; the numbers are the evidence. Sound sacrifices aren't counted here (Iron Ledger's own check).</p>`;
+}
+
+/* 1.15.0 — the eye-strain log's answer (js/eyes.js = Iron Ledger v8.31): each comparison with its n, a difference only beyond chance. */
+function eyesCard() {
+  const s = eyesSummary();
+  if (!s.n) return `<p class="sub">After each game, one tap: your eyes 1 to 5, glasses on or off. The answer comes once there are ${EYES.minN} ratings on each side.</p>`;
+  return `<p class="sub">${s.n} ratings after games (1 fresh … 5 sore).</p>${s.comparisons.map((c) => `<p class="eyes-${c.verdict === "bigger than chance" ? "diff" : "same"}">${esc(c.say)}</p>`).join("")}`;
 }

@@ -277,3 +277,12 @@ html[data-boardpic] :is(.bd-l, .bd-d) { background: transparent; }
 .ps-list li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; }
 .ps-list li .ilc-card__line { grid-column: 1 / -1; }
 .ps-fig { font-weight: 700; }
+/* 1.15.0 — the flat board zoomed by two fingers (js/flatzoom.js): the board's own box clips it, so nothing else on the screen is covered */
+.bd.fz-on { overflow: hidden; }
+.bd-grid.fz-zoomed { box-shadow: none; }
+/* 1.15.0 — the eye-strain question on the end plate */
+.eyes-ask { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; margin-top: var(--space-3); }
+.eyes-q { width: 100%; text-align: center; font: 600 13px/18px var(--font-sans); color: var(--ink-muted); }
+.eyes-n { min-width: 44px; padding: 4px 8px; display: grid; justify-items: center; line-height: 1.1; } .eyes-n small { font-size: 10px; color: var(--ink-muted); }
+.eyes-g[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.eyes-diff { color: var(--gold); }

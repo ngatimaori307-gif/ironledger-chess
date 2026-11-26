@@ -22,6 +22,8 @@ The sets and colours are modern Māori art, designed by the developer of Iron Le
 - chess.js (BSD-2-Clause) for the rules — `vendor/chess.js`
 - PeerJS (MIT) for Play a Friend — `vendor/peerjs.min.js`
 - Fonts: Cinzel and Alegreya Sans (SIL Open Font License), from Google Fonts
+- From Iron Ledger, by its developer: the flat board's pinch-zoom (`js/flatzoom.js`), the eyes-and-glasses log (`js/eyes.js`) and
+  Profile → Share all my games (`js/share.js`), which writes every game as one PGN file for his Iron Ledger opponent book
 
 The whole app is covered by the GNU General Public License v3 (see `vendor/stockfish/COPYING.txt`), because it includes Stockfish;
 Maia-3's network and `js/maia3-net.js` are under the GNU Affero General Public License v3, which may be combined with it. This
