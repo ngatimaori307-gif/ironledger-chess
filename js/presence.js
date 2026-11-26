@@ -23,7 +23,7 @@ export function addFriend(id, name) {
 }
 export function removeFriend(id) { const d = read(); d.list = d.list.filter((f) => f.id !== id); write(d); }
 const state = { peer: null, opts: null, waiting: false };
-function options() {
+export function options() {   // 1.17.0: also js/sendgames.js
   let o = FRIEND.peer; try { o = { ...o, ...JSON.parse(localStorage.getItem(FRIEND.serverOverrideKey) || "{}") }; } catch { /* none */ } return o;
 }
 /* Waits for invites while the app is open (only once he has a friend; never in Offline mode). */

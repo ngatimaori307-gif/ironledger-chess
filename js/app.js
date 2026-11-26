@@ -50,4 +50,5 @@ document.title = APP.name;
 addEventListener("hashchange", route);
 route();
 import("./presence.js").then((p) => p.start()).catch((e) => log.record("info", `invites not listened for: ${e.message}`));   // friends' invites pop up
+import("./sendgames.js").then((s) => s.startSending()).catch((e) => log.record("info", `games not sent: ${e.message}`));   // 1.17.0: every game to his son's Iron Ledger
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch((e) => log.record("info", `offline copy not set up: ${e.message}`));

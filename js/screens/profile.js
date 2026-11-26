@@ -6,8 +6,8 @@ import { profile } from "../rating.js";
 import { esc } from "./ui.js";
 import { evaluate, STYLES } from "../style.js";
 import { loadReport } from "../review.js";
-import { shareAll } from "../share.js";
-import { toast } from "../app.js";
+import { sentTo } from "../sendgames.js";
+import { friends } from "../presence.js";
 import { summary as eyesSummary, EYES } from "../eyes.js";
 
 const ORDER = ["m3", "guard", "maia", "styled", "sf", "weak", "friend", "other"];
@@ -34,8 +34,7 @@ export function render(v) {
     ${eyesCard()}
     <h2 class="overline">Your games</h2>
     ${all.length ? `<p class="sub">Tap a game to replay it or copy it as PGN. This phone keeps your last ${GAMES_KEPT}.</p>
-      <div class="row"><button class="ilc-btn" id="pf-share">Share all my games</button></div>
-      <p class="sub">One file of all ${all.length} games, with your name on them, for Iron Ledger. Nothing is sent unless you share it.</p>
+      ${sentLine()}
       <ul class="games">${all.map(row).join("")}</ul>` : ""}
   </section>`;
   const drawStyle = () => { v.querySelector("#ps").innerHTML = styleCard(evaluate(all, loadReport, settings.styleSide || null)); };
@@ -43,10 +42,12 @@ export function render(v) {
   drawStyle();
   const nm = v.querySelector("#pf-name");
   nm.onchange = () => { settings.name = nm.value.trim(); saveSettings(); };
-  v.querySelector("#pf-share")?.addEventListener("click", async () => {      // 1.15.0: his games for Iron Ledger's opponent book
-    if (!settings.name) { nm.focus(); toast("Type your name first, so your games carry it"); return; }
-    try { const how = await shareAll(all); toast(how === "shared" ? "Games shared" : "Games saved to Downloads"); } catch (e) { if (e && e.name !== "AbortError") toast("Couldn't share the games"); }
-  });
+}
+/* 1.17.0: what has gone to a friend's Iron Ledger by itself (js/sendgames.js), said plainly so he knows his games are sent */
+function sentLine() {
+  const got = friends().map((f) => [f, sentTo(f.id)]).filter(([, x]) => x);
+  return `<p class="sub pf-sent">Your games go by themselves, with your name on them, to a friend's Iron Ledger when both apps are open${got.length
+    ? `: ${got.map(([f, x]) => `${x.games} to ${esc(f.name)}, the last ${esc(x.last)}`).join(" · ")}` : " (none yet)"}.</p>`;
 }
 
 /* 1.14.0 — Iron Ledger's playstyle card (Profile → Your playstyle, v7.45): the style and its streak, the four scores as bars (0 in

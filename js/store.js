@@ -11,7 +11,8 @@ export function ladder() { return read(STORE.ladder, { beaten: [] }); }
 export function beat(id) { const l = ladder(); if (!l.beaten.includes(id)) l.beaten.push(id); write(STORE.ladder, l); return l; }
 
 export function games() { return read(STORE.games, []); }
-export function addGame(g) { const all = [g, ...games()].slice(0, GAMES_KEPT); write(STORE.games, all); return all; }
+export function addGame(g) { const all = [g, ...games()].slice(0, GAMES_KEPT); write(STORE.games, all);
+  try { dispatchEvent(new Event("ilc-game-saved")); } catch { /* no window (tests) */ } return all; }   // 1.17.0: js/sendgames.js sends it
 
 export function current() { return read(STORE.current, null); }
 export function setCurrent(g) { if (g) write(STORE.current, g); else localStorage.removeItem(STORE.current); }
