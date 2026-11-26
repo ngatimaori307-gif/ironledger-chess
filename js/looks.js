@@ -12,6 +12,7 @@ export const OWN_BOARDS = [
   { id: LOOK_BOARD, name: "The look's colours" },
   { id: "steel", name: "Steel", light: "#D8D2C4", dark: "#7F8C96" }, { id: "walnut", name: "Walnut", light: "#E3CFA8", dark: "#9A6B43" },
   { id: "slate", name: "Slate", light: "#C9D1D6", dark: "#56636E" }, { id: "moss", name: "Moss", light: "#DDE3CF", dark: "#6F8559" },
+  { id: "lacquer", name: "Lacquered wood", light: "#E6C391", dark: "#A06A42", veneer: true },   // 1.16.0: Iron Ledger v8.24's (photographed veneers)
 ];
 export const BOARDS = [...OWN_BOARDS, ...LICHESS_BOARDS];
 export const PIECE_SETS = [{ id: WOOD, name: "Staunton wood", by: "Iron Ledger", licence: "the app's own" }, ...LICHESS_SETS];
@@ -30,6 +31,7 @@ export function applyBoard() {
   const b = board(), root = document.documentElement;
   for (const k of ["--sq-light", "--sq-dark", "--board-img"]) root.style.removeProperty(k);
   root.toggleAttribute("data-boardpic", !!b.file);
+  root.toggleAttribute("data-veneer", !!b.veneer);
   root.toggleAttribute("data-raised", settings.boardEdge !== "flat");      // 1.10.0: the board's thickness, Iron Ledger's v8.12
   if (b.light) { root.style.setProperty("--sq-light", b.light); root.style.setProperty("--sq-dark", b.dark); }
   if (b.file) root.style.setProperty("--board-img", `url("${new URL(DIR + "board/" + b.file, document.baseURI).href}")`);   // a full address: a url() in a variable is read from the stylesheet's folder

@@ -22,6 +22,13 @@ The sets and colours are modern Māori art, designed by the developer of Iron Le
 - chess.js (BSD-2-Clause) for the rules — `vendor/chess.js`
 - PeerJS (MIT) for Play a Friend — `vendor/peerjs.min.js`
 - Fonts: Cinzel and Alegreya Sans (SIL Open Font License), from Google Fonts
+- From Iron Ledger, by its developer: the flat board's pinch-zoom (`js/flatzoom.js`), the eyes-and-glasses log (`js/eyes.js`) and
+  every game sent by itself to his son's Iron Ledger (`js/sendgames.js`): posted to an ntfy.sh topic his son's app collects
+  whenever it runs, and straight across PeerJS when both apps are open; posted again until his son's app confirms it. Profile says
+  what has arrived. The topic names are in this public code, so anyone reading it could read the games posted there
+- From Iron Ledger too (1.16.0): Black's carving made readable without lightening it, the lacquered 3D board with its inlaid line,
+  the Lacquered wood board, and the 3D room (`js/room3d.js`, Me → 3D surroundings)
+- Wood veneer photographs (CC0) from Poly Haven — `vendor/textures/`, see `vendor/textures/COPYING.md`
 
 The whole app is covered by the GNU General Public License v3 (see `vendor/stockfish/COPYING.txt`), because it includes Stockfish;
 Maia-3's network and `js/maia3-net.js` are under the GNU Affero General Public License v3, which may be combined with it. This
@@ -30,4 +37,4 @@ repository is the complete source.
 ## Problem reports
 The app keeps a log of anything that goes wrong on the phone (Me → Report a problem copies it) and, unless switched off in
 Me → Settings, sends each problem to the developer: what went wrong, the screen, the phone's model and browser, and the
-app's version. Nothing else.
+app's version. Games go separately, to his son's Iron Ledger (above).

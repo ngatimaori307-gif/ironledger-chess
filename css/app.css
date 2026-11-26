@@ -277,3 +277,35 @@ html[data-boardpic] :is(.bd-l, .bd-d) { background: transparent; }
 .ps-list li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; }
 .ps-list li .ilc-card__line { grid-column: 1 / -1; }
 .ps-fig { font-weight: 700; }
+/* 1.15.0 — the flat board zoomed by two fingers (js/flatzoom.js): the board's own box clips it, so nothing else on the screen is covered */
+.bd.fz-on { overflow: hidden; }
+.bd-grid.fz-zoomed { box-shadow: none; }
+/* 1.15.0 — the eye-strain question on the end plate */
+.eyes-ask { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; margin-top: var(--space-3); }
+.eyes-q { width: 100%; text-align: center; font: 600 13px/18px var(--font-sans); color: var(--ink-muted); }
+.eyes-n { min-width: 44px; padding: 4px 8px; display: grid; justify-items: center; line-height: 1.1; } .eyes-n small { font-size: 10px; color: var(--ink-muted); }
+.eyes-g[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.eyes-diff { color: var(--gold); }
+
+/* 1.16.0 — Lacquered wood (Iron Ledger v8.24, by its developer): each square its own patch of a photographed veneer (maple light,
+   walnut dark; Poly Haven CC0, vendor/textures), laid over the square's colour as grain (soft-light keeps its brightness), with the
+   varnish's soft light from the far side. The dark squares are kept light enough for Black's pieces to stand out. */
+html[data-veneer] .bd-grid > :is(.bd-l, .bd-d) { background-size: 100% 100%, 400% 400%; background-blend-mode: normal, soft-light; background-repeat: no-repeat; }
+html[data-veneer] .bd-grid > .bd-l { background-color: var(--sq-light); background-image: linear-gradient(150deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 55%), url("../vendor/textures/angli_veneer_diff_1k.jpg"); }
+html[data-veneer] .bd-grid > .bd-d { background-color: var(--sq-dark); background-image: linear-gradient(150deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .05) 70%), url("../vendor/textures/american_walnut_veneer_diff_1k.jpg"); }
+html[data-veneer] .bd-grid > :nth-child(8n+1) { background-position-x: 0.0%; }
+html[data-veneer] .bd-grid > :nth-child(8n+2) { background-position-x: 33.33%; }
+html[data-veneer] .bd-grid > :nth-child(8n+3) { background-position-x: 66.67%; }
+html[data-veneer] .bd-grid > :nth-child(8n+4) { background-position-x: 100.0%; }
+html[data-veneer] .bd-grid > :nth-child(8n+5) { background-position-x: 0.0%; }
+html[data-veneer] .bd-grid > :nth-child(8n+6) { background-position-x: 33.33%; }
+html[data-veneer] .bd-grid > :nth-child(8n+7) { background-position-x: 66.67%; }
+html[data-veneer] .bd-grid > :nth-child(8n+8) { background-position-x: 100.0%; }
+html[data-veneer] .bd-grid > :nth-child(n+1):nth-child(-n+8) { background-position-y: 0.0%; }
+html[data-veneer] .bd-grid > :nth-child(n+9):nth-child(-n+16) { background-position-y: 33.33%; }
+html[data-veneer] .bd-grid > :nth-child(n+17):nth-child(-n+24) { background-position-y: 66.67%; }
+html[data-veneer] .bd-grid > :nth-child(n+25):nth-child(-n+32) { background-position-y: 100.0%; }
+html[data-veneer] .bd-grid > :nth-child(n+33):nth-child(-n+40) { background-position-y: 0.0%; }
+html[data-veneer] .bd-grid > :nth-child(n+41):nth-child(-n+48) { background-position-y: 33.33%; }
+html[data-veneer] .bd-grid > :nth-child(n+49):nth-child(-n+56) { background-position-y: 66.67%; }
+html[data-veneer] .bd-grid > :nth-child(n+57):nth-child(-n+64) { background-position-y: 100.0%; }

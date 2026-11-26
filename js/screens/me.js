@@ -33,6 +33,8 @@ export function render(v) {
     <div class="field"><label for="amb">Fireside</label><select id="amb">${SCENE_NAMES.map(([k, l]) => `<option value="${k}"${k === settings.ambience ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     <div class="field"><label for="amv">Fireside volume</label><select id="amv">${SCENE_VOLUMES.map(([k, l]) => `<option value="${k}"${k === Number(settings.ambienceVol) ? " selected" : ""}>${l}</option>`).join("")}</select></div>
     <div class="field"><label for="bview">Board view</label><select id="bview">${[["flat", "Flat"], ["3d", "3D"]].map(([k, l]) => `<option value="${k}"${k === (settings.boardView || "flat") ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+    <div class="field"><label for="room">3D surroundings</label><select id="room">${[["off", "None"], ["study", "Study"], ["night", "Night"]].map(([k, l]) => `<option value="${k}"${k === (settings.room3d || "off") ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+    <label class="switch"><span>Room life: dust in the light, the lamp breathing</span><input type="checkbox" id="rlife"${settings.room3dLife !== false ? " checked" : ""}></label>
     <label class="switch"><span>A raised board, its side and shadow</span><input type="checkbox" id="edge"${settings.boardEdge !== "flat" ? " checked" : ""}></label>
     <label class="switch"><span>Moving pieces</span><input type="checkbox" id="mot"${settings.motion !== "calm" ? " checked" : ""}></label>
     <div class="field"><label for="cfx">When a piece is taken</label><select id="cfx">${CAPTURE_FX.map(([k, l]) => `<option value="${k}"${k === settings.captureFx ? " selected" : ""}>${l}</option>`).join("")}</select></div>
@@ -48,6 +50,7 @@ export function render(v) {
   const set = (id, key, conv = (x) => x) => { v.querySelector(id).onchange = (e) => { settings[key] = conv(e.target.type === "checkbox" ? e.target.checked : e.target.value); saveSettings(); if (key.startsWith("ambience")) fireside(); }; };
   set("#pv", "pieceVoices"); set("#hb", "checkBeat"); set("#ui", "uiSound"); set("#amb", "ambience"); set("#amv", "ambienceVol", Number);
   v.querySelector("#bview").onchange = (e) => { settings.boardView = e.target.value; saveSettings(); };   // 1.11.0: the next board opened
+  set("#room", "room3d"); set("#rlife", "room3dLife");   // 1.16.0: the 3D board's room (Iron Ledger v8.26), for the next board opened
   v.querySelector("#edge").onchange = (e) => { settings.boardEdge = e.target.checked ? "raised" : "flat"; saveSettings(); applyBoard(); };
   v.querySelector("#mot").onchange = (e) => { settings.motion = e.target.checked ? "full" : "calm"; saveSettings(); };
   v.querySelector("#cfx").onchange = (e) => { settings.captureFx = e.target.value; saveSettings(); };

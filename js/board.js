@@ -9,6 +9,7 @@ import { settings } from "./store.js";
 import { pieceSrc } from "./looks.js";
 import * as A from "./arrows.js";
 import { pairs as tensionPairs, TENSION } from "./tension.js";
+import { attach as attachZoom } from "./flatzoom.js";
 
 const FILES = "abcdefgh";
 const PROMO = ["q", "r", "b", "n"];
@@ -38,6 +39,7 @@ export function createBoard(host, { onMove, canMove }) {
     import("./board3d.js").then((m) => {
       if (view3d || settings.boardView !== "3d" || !host.isConnected) return;
       view3d = m.create3d(host, {
+        room: settings.room3d || "off", veneer: settings.board === "lacquer", alive: settings.room3dLife !== false && !calm(),   // 1.16.0
         onDown: (sq) => { if (drawing) drawFrom = sq; },
         onSquare: (from, to) => {
           if (drawing) { drawFrom = null; if (to) mark(from, to); return; }
@@ -197,6 +199,12 @@ export function createBoard(host, { onMove, canMove }) {
   });
   grid.addEventListener("pointercancel", (e) => { drawFrom = null; endDrag(e, true); });
   grid.addEventListener("click", (e) => { if (e.detail === 0 && !drawing) { const b = e.target.closest(".bd-sq"); if (b) tap(b.dataset.sq); } });   // the keyboard's Enter / Space
+  /* 1.15.0: two fingers zoom the flat board (js/flatzoom.js = Iron Ledger v8.29); a second finger turns a started move into the pinch. */
+  attachZoom({ el: grid, cancelTouch() {
+    const d = drag; drag = null; drawFrom = null; if (!d) return;
+    if (d.raf) cancelAnimationFrame(d.raf); if (d.over) squares[d.over].classList.remove("bd-over"); if (d.ghost) d.ghost.remove();
+    const lifted = squares[d.from] && squares[d.from].querySelector("img"); if (lifted) lifted.classList.remove("bd-lifted"); picked = null; if (chess) draw();
+  } });
   return {
     set(c, { lastMove = null, flip = flipped } = {}) {
       const moved = lastMove && before && last !== lastMove && c.history().length === before.n + 1;
