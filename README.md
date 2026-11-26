@@ -24,6 +24,9 @@ The sets and colours are modern Māori art, designed by the developer of Iron Le
 - Fonts: Cinzel and Alegreya Sans (SIL Open Font License), from Google Fonts
 - From Iron Ledger, by its developer: the flat board's pinch-zoom (`js/flatzoom.js`), the eyes-and-glasses log (`js/eyes.js`) and
   Profile → Share all my games (`js/share.js`), which writes every game as one PGN file for his Iron Ledger opponent book
+- From Iron Ledger too (1.16.0): Black's carving made readable without lightening it, the lacquered 3D board with its inlaid line,
+  the Lacquered wood board, and the 3D room (`js/room3d.js`, Me → 3D surroundings)
+- Wood veneer photographs (CC0) from Poly Haven — `vendor/textures/`, see `vendor/textures/COPYING.md`
 
 The whole app is covered by the GNU General Public License v3 (see `vendor/stockfish/COPYING.txt`), because it includes Stockfish;
 Maia-3's network and `js/maia3-net.js` are under the GNU Affero General Public License v3, which may be combined with it. This

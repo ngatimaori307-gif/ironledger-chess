@@ -39,6 +39,7 @@ export function createBoard(host, { onMove, canMove }) {
     import("./board3d.js").then((m) => {
       if (view3d || settings.boardView !== "3d" || !host.isConnected) return;
       view3d = m.create3d(host, {
+        room: settings.room3d || "off", veneer: settings.board === "lacquer", alive: settings.room3dLife !== false && !calm(),   // 1.16.0
         onDown: (sq) => { if (drawing) drawFrom = sq; },
         onSquare: (from, to) => {
           if (drawing) { drawFrom = null; if (to) mark(from, to); return; }
